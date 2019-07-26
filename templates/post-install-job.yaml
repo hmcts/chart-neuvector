@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: neuvector-restapi-config-job
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/name: {{ template "chart-neuvector.name" . }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation # preserve job pod but delete before next install/upgrade
+spec:
+  template:
+    metadata:
+      name: {{ template "chart-neuvector.fullname" . }}
+      labels:
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ template "chart-neuvector.name" . }}
+        aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: post-install-job
+          image: hmctspublic.azurecr.io/docker-curl
+          command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+          volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+          - name: flexvol
+            mountPath: /kvmnt
+            readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: neuvector-restapi-config
+            defaultMode: 0755
+        - name: flexvol
+          flexVolume:
+            driver: azure/kv
+            options:
+              keyvaultname: {{ .Values.keyvault.name }}
+              keyvaultobjectnames: neuvector-admin-password;neuvector-new-admin-password;{{ .Values.keyvault.licensececretname }}
+              keyvaultobjecttypes: secret;secret;secret
+              resourcegroup: {{ .Values.keyvault.resourcegroup }}
+              subscriptionid: {{ .Values.keyvault.subscriptionid }}
+              tenantid: {{ .Values.keyvault.tenantid }}
+              usepodidentity: "true"
