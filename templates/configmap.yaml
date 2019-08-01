@@ -18,6 +18,7 @@ data:
     NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
     NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
     NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensececretname }})
+    NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # TODO: Some logic to handle the case where the new admin password has already been set...
     echo "Getting authentication token..."
@@ -32,4 +33,5 @@ data:
     echo "Changing default admin password..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
 
-    # TODO: Set the Slack webhook URL
+    # Set the Slack webhook URL
+    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
