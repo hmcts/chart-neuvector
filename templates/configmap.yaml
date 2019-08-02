@@ -20,6 +20,7 @@ data:
     NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
     NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
     NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensececretname }})
+    NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # Authenticate and check if password has been changed
     echo "Getting authentication token..."
@@ -45,4 +46,5 @@ data:
       TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     fi
 
-    # TODO: Set the Slack webhook URL
+    # Set the Slack webhook URL
+    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
