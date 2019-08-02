@@ -26,6 +26,9 @@ jobs:
       chartNamespace: chart-tests
       helmDeleteWait: "300"
       helmInstallWait: "300"
+      serviceConnection: "DCD-CFTAPPS-SBOX"
+      aksResourceGroup: "sbox-01-rg"
+      aksCluster: "sbox-01-aks"
 
 - job: Release
   # Make sure we have a tag to run this job
@@ -43,3 +46,6 @@ jobs:
       chartName: neuvector
       chartReleaseName: chart-neuvector
       chartNamespace: chart-tests
+      serviceConnection: "DCD-CFTAPPS-SBOX"
+      aksResourceGroup: "sbox-01-rg"
+      aksCluster: "sbox-01-aks"
