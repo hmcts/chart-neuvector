@@ -11,6 +11,8 @@ data:
   config.sh: |
     #!/bin/sh
 
+    set -e
+
     # NV API URL. Note just using hostname doesn't always resolve...
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
@@ -19,17 +21,28 @@ data:
     NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
     NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensececretname }})
 
-    # TODO: Some logic to handle the case where the new admin password has already been set...
+    # Authenticate and check if password has been changed
     echo "Getting authentication token..."
     TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
-
+    if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]
+    then
+      TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+      _NEW_TOKEN="1"
+    fi
+    
     echo "Accepting EULA..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
 
     echo "Setting license..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
 
-    echo "Changing default admin password..."
-    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
+    # Change admin password
+    if [ "$_NEW_TOKEN" == "" ]
+    then
+      echo "Changing default admin password..."
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
+      echo "Re-authenticating..."
+      TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+    fi
 
     # TODO: Set the Slack webhook URL
