@@ -17,7 +17,7 @@ resources:
 jobs:
 - job: Validate
   pool:
-    vmImage: 'Ubuntu 16.04'
+    name: hmcts-sandbox-agent-pool
   steps:
   - template: steps/charts/validate.yaml@cnp-library
     parameters :
@@ -39,7 +39,7 @@ jobs:
       )
   dependsOn: Validate
   pool:
-    vmImage: 'Ubuntu 16.04'
+    name: hmcts-sandbox-agent-pool
   steps:
   - template: steps/charts/release.yaml@cnp-library
     parameters:
