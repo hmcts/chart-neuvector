@@ -9,24 +9,24 @@ resources:
     type: github
     name: hmcts/neuvector-helm
     endpoint: 'hmcts'
+variables:
+  chartName: neuvector
+  chartReleaseName: chart-neuvector-ci
+  chartNamespace: chart-tests
+  acrName: "hmctspublic"
+  helmDeleteWait: "300"
+  helmInstallWait: "300"
+  serviceConnection: "DCD-CFTAPPS-SBOX"
+  registryServiceConnection: "azurerm-prod"
+  aksResourceGroup: "sbox-01-rg"
+  aksCluster: "sbox-01-aks"
+  helmVersion: "2.11.0"
 
 
 jobs:
 - job: Release
   pool:
     name: hmcts-sandbox-agent-pool
-  parameters :
-    chartName: neuvector
-    chartReleaseName: chart-neuvector-ci
-    chartNamespace: chart-tests
-    acrName: "hmctspublic"
-    helmDeleteWait: "300"
-    helmInstallWait: "300"
-    serviceConnection: "DCD-CFTAPPS-SBOX"
-    registryServiceConnection: "azurerm-prod"
-    aksResourceGroup: "sbox-01-rg"
-    aksCluster: "sbox-01-aks"
-    helmVersion: "2.11.0"
   steps:
     - task: HelmInstaller@0
       inputs:
