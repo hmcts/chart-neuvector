@@ -26,6 +26,7 @@ jobs:
       chartNamespace: chart-tests
       helmDeleteWait: "180"
       helmInstallWait: "180"
+      helmInstallTimeout: "180"
       serviceConnection: "DCD-CFTAPPS-SBOX"
       aksResourceGroup: "sbox-01-rg"
       aksCluster: "sbox-01-aks"
