@@ -1,0 +1,64 @@
+name: chart-neuvector pipeline
+trigger:
+  none
+pr:
+  none
+resources:
+  repositories:
+  - repository: neuvector-helm
+    type: github
+    name: hmcts/neuvector-helm
+    endpoint: 'hmcts'
+
+parameters :
+  chartName: neuvector
+  chartReleaseName: chart-neuvector-ci
+  chartNamespace: chart-tests
+  acrName: "hmctspublic"
+  helmDeleteWait: "300"
+  helmInstallWait: "300"
+  serviceConnection: "DCD-CFTAPPS-SBOX"
+  registryServiceConnection: "azurerm-prod"
+  aksResourceGroup: "sbox-01-rg"
+  aksCluster: "sbox-01-aks"
+  helmVersion: "2.11.0"
+
+jobs:
+- job: Release
+  pool:
+    name: hmcts-sandbox-agent-pool
+  steps:
+    - task: HelmInstaller@0
+      inputs:
+        helmVersion: ${{ parameters.helmVersion }}
+        checkLatestHelmVersion: false
+        installKubectl: false
+
+    - task: AzureCLI@1
+      displayName: "AKS Authenticate"
+      inputs:
+        azureSubscription: ${{ parameters.serviceConnection }}
+        scriptLocation: "inlineScript"
+        inlineScript: az aks get-credentials --resource-group ${{ parameters.aksResourceGroup }} --name ${{ parameters.aksCluster }}
+
+    - task: AzureCLI@1
+      displayName: "Add custom charts repo"
+      inputs:
+        azureSubscription: ${{ parameters.registryServiceConnection }}
+        scriptLocation: "inlineScript"
+        inlineScript: az acr helm repo add --name ${{ parameters.acrName }}
+
+    - script: helm dependency update ${{ parameters.chartName }}
+      displayName: "Retrieve helm dependencies (if any)"
+
+    - script: helm package ${{ parameters.chartName }}
+      displayName: "Helm Package"
+
+    - task: AzureCLI@1
+      displayName: "Helm Publish"
+      inputs:
+        azureSubscription: ${{ parameters.registryServiceConnection }}
+        scriptLocation: "inlineScript"
+        inlineScript: |
+          CHART_FILE=$(ls ${{ parameters.chartName }}-*)
+          az acr helm push --name ${{ parameters.acrName }} $CHART_FILE

@@ -1,0 +1,3 @@
+[submodule "neuvector"]
+	path = neuvector
+	url = https://github.com/hmcts/neuvector-helm
