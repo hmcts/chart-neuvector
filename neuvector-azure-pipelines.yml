@@ -60,5 +60,4 @@ jobs:
         azureSubscription: $(registryServiceConnection)
         scriptLocation: "inlineScript"
         inlineScript: |
-          CHART_FILE=$(ls $(chartName)-*)
-          az acr helm push --name $(acrName) $CHART_FILE
+          az acr helm push --name $(acrName) $(chartName)
