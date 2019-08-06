@@ -9,6 +9,7 @@ resources:
     type: github
     name: hmcts/neuvector-helm
     endpoint: 'hmcts'
+
 variables:
   chartName: neuvector
   chartReleaseName: chart-neuvector-ci
@@ -22,7 +23,6 @@ variables:
   aksCluster: "sbox-01-aks"
   helmVersion: "2.11.0"
 
-
 jobs:
 - job: Release
   pool:
@@ -30,35 +30,35 @@ jobs:
   steps:
     - task: HelmInstaller@0
       inputs:
-        helmVersion: ${{ parameters.helmVersion }}
+        helmVersion: $(helmVersion)
         checkLatestHelmVersion: false
         installKubectl: false
 
     - task: AzureCLI@1
       displayName: "AKS Authenticate"
       inputs:
-        azureSubscription: ${{ parameters.serviceConnection }}
+        azureSubscription: $(serviceConnection)
         scriptLocation: "inlineScript"
-        inlineScript: az aks get-credentials --resource-group ${{ parameters.aksResourceGroup }} --name ${{ parameters.aksCluster }}
+        inlineScript: az aks get-credentials --resource-group $(aksResourceGroup) --name $(aksCluster)
 
     - task: AzureCLI@1
       displayName: "Add custom charts repo"
       inputs:
-        azureSubscription: ${{ parameters.registryServiceConnection }}
+        azureSubscription: $(registryServiceConnection)
         scriptLocation: "inlineScript"
-        inlineScript: az acr helm repo add --name ${{ parameters.acrName }}
+        inlineScript: az acr helm repo add --name $(acrName)
 
-    - script: helm dependency update ${{ parameters.chartName }}
+    - script: helm dependency update $(chartName)
       displayName: "Retrieve helm dependencies (if any)"
 
-    - script: helm package ${{ parameters.chartName }}
+    - script: helm package $(chartName)
       displayName: "Helm Package"
 
     - task: AzureCLI@1
       displayName: "Helm Publish"
       inputs:
-        azureSubscription: ${{ parameters.registryServiceConnection }}
+        azureSubscription: $(registryServiceConnection)
         scriptLocation: "inlineScript"
         inlineScript: |
-          CHART_FILE=$(ls ${{ parameters.chartName }}-*)
-          az acr helm push --name ${{ parameters.acrName }} $CHART_FILE
+          CHART_FILE=$(ls $(chartName)-*)
+          az acr helm push --name $(acrName) $CHART_FILE
