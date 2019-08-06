@@ -1,6 +1,6 @@
 name: chart-neuvector pipeline
 trigger:
-  none
+  - master
 pr:
   none
 resources:
