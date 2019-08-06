@@ -1,4 +1,4 @@
-name: chart-neuvector pipeline
+name: chart-neuvector-azure-keyvault pipeline
 trigger:
   branches:
     include:
@@ -21,8 +21,8 @@ jobs:
   steps:
   - template: steps/charts/validate.yaml@cnp-library
     parameters :
-      chartName: neuvector
-      chartReleaseName: chart-neuvector-ci
+      chartName: neuvector-azure-keyvault
+      chartReleaseName: chart-neuvector-azure-keyvault-ci
       chartNamespace: chart-tests
       helmDeleteWait: "300"
       helmInstallWait: "300"
@@ -43,8 +43,8 @@ jobs:
   steps:
   - template: steps/charts/release.yaml@cnp-library
     parameters:
-      chartName: neuvector
-      chartReleaseName: chart-neuvector
+      chartName: neuvector-azure-keyvault
+      chartReleaseName: chart-neuvector-azure-keyvault
       chartNamespace: chart-tests
       serviceConnection: "DCD-CFTAPPS-SBOX"
       aksResourceGroup: "sbox-01-rg"
