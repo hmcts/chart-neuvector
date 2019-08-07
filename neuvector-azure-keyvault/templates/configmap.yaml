@@ -24,6 +24,10 @@ data:
 
     # Authenticate and check if password has been changed
     echo "Getting authentication token..."
+    echo $NV_ADMIN_PASSWORD
+    echo $NV_NEW_ADMIN_PASSWORD
+    echo $NV_LICENSE
+    echo $NV_SLACK_WEBHOOK
     TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]
     then
