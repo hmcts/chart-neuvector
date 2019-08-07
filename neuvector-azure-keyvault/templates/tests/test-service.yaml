@@ -52,7 +52,7 @@ spec:
           usepodidentity: "true"
   containers:
     - name: {{ .Release.Name }}-test-service
-      image: alpine:3.9
+      image: hmctspublic.azurecr.io/docker-curl
       volumeMounts:
         - name: configmap-volume
           mountPath: /entrypoint
