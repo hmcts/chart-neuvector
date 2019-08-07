@@ -56,6 +56,9 @@ spec:
       volumeMounts:
         - name: configmap-volume
           mountPath: /entrypoint
+        - name: flexvol
+            mountPath: /kvmnt
+            readOnly: true
       env:
         - name: SERVICE_NAME
           value: {{ .Release.Name }}
