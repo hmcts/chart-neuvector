@@ -31,11 +31,9 @@ metadata:
   name: "{{ .Release.Name }}-test-service"
   annotations:
     "helm.sh/hook": test-success
+  labels:
+    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
-  template:
-    metadata:
-      labels:
-        aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
   volumes:
     - name: configmap-volume
       configMap:
