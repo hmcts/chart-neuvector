@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 keyvault:
-  aadpodidbinding: neuvector-binding
+  aadpodidbinding: neuvector
   name: cftapps-sbox
   resourcegroup: core-infra-sbox-rg
   subscriptionid: b72ab7b7-723f-4b18-b6f6-03b0f2c6a1bb
