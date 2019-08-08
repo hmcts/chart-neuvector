@@ -63,5 +63,6 @@ data:
 
     echo "Checking EULA accepted..."
     EULA=$(curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula |jq .eula.accepted)
-    echo "$EULA"
     [ "$EULA" != "true" ] && exit 1
+
+    exit 0
