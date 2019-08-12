@@ -11,7 +11,7 @@ keyvault:
   licensececretname: neuvector-license-dev
 
 neuvector:
-  registry: hmcts.azurecr.io
+  registry: hmctsprivate.azurecr.io
   tag: 2.5.0
 
   manager:

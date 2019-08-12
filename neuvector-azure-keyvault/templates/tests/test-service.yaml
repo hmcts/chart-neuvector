@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-test-service"
+  annotations:
+    "helm.sh/hook": test-success
+  labels:
+    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
+spec:
+  volumes:
+    - name: configmap-volume
+      configMap:
+        defaultMode: 0755
+        name: {{ .Release.Name }}-test-configmap
+    - name: flexvol
+      flexVolume:
+        driver: azure/kv
+        options:
+          keyvaultname: {{ .Values.keyvault.name }}
+          keyvaultobjectnames: neuvector-new-admin-password
+          keyvaultobjecttypes: secret
+          resourcegroup: {{ .Values.keyvault.resourcegroup }}
+          subscriptionid: {{ .Values.keyvault.subscriptionid }}
+          tenantid: {{ .Values.keyvault.tenantid }}
+          usepodidentity: "true"
+  containers:
+    - name: {{ .Release.Name }}-test-service
+      image: hmctspublic.azurecr.io/docker-curl
+      volumeMounts:
+        - name: configmap-volume
+          mountPath: /entrypoint
+        - name: flexvol
+          mountPath: /kvmnt
+          readOnly: true
+      env:
+        - name: SERVICE_NAME
+          value: {{ .Release.Name }}
+      command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
+  restartPolicy: Never
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  entrypoint.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    # NV API URL. 
+    API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
+
+    # KV Flexvol secrets
+    NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
+
+    echo "Getting authentication token..."
+    TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+    [[ "$TOKEN" == "" || "$TOKEN" == "null" ]] && exit 1
+
+    echo "Checking EULA accepted..."
+    EULA=$(curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula |jq .eula.accepted)
+    [ "$EULA" != "true" ] && exit 1
+
+    exit 0

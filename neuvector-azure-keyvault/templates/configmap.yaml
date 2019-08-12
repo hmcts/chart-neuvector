@@ -42,9 +42,13 @@ data:
     then
       echo "Changing default admin password..."
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
+      echo ""
       echo "Re-authenticating..."
       TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     fi
 
     # Set the Slack webhook URL
+    echo "Setting Slack webhook URL..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
+
+    echo "Done"
