@@ -12,7 +12,7 @@ keyvault:
 
 rules:
   admission:
-    enable: false
+    enable: true
     mode: "Monitor"
     deny: 
       - '{"config":{"id":1002,"category":"Kubernetes","comment":"Default deny","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://localhost/,https://*.*/"}],"disable":false,"actions":[""]}}'
