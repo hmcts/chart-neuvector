@@ -58,6 +58,7 @@ data:
       echo "Setting Deny admission rules..."
       for ar in $(echo '{{ .Values.rules.admission.deny | join " " }}')
       do 
+        echo "Setting deny rule: $ar"
         curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"${ar}"'"
       done
     fi
@@ -69,6 +70,7 @@ data:
       echo "Setting Exception admission rules..."
       for ar in $(echo '{{ .Values.rules.admission.exception | join " " }}')
       do 
+        echo "Setting exception rule: $ar"
         curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"${ar}"'"
       done
     fi
