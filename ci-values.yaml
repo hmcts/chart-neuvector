@@ -10,6 +10,18 @@ keyvault:
   tenantid: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
   licensececretname: neuvector-license-dev
 
+rules:
+  admission:
+    enable: false
+    mode: "Monitor"
+    deny: 
+      - '{"config":{"id":1002,"category":"Kubernetes","comment":"Default deny","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://localhost/,https://*.*/"}],"disable":false,"actions":[""]}}'
+    exception: 
+      - '{"config":{"id":1,"category":"Kubernetes","comment":"Allow deployments in system namespaces.","criteria":[{"name":"namespace","op":"containsAny","value":"kube-system,kube-public,istio-system"}],"disable":false,"actions":[""]}}'
+      - '{"config":{"id":2,"category":"Kubernetes","comment":"Allow deployments in NeuVector namespace","criteria":[{"name":"namespace","op":"containsAny","value":"neuvector"}],"disable":false,"actions":[""]}}'
+      - '{"config":{"id":1000,"category":"Kubernetes","comment":"Allow admin namespaces","criteria":[{"name":"namespace","op":"containsAny","value":"admin,kured"}],"disable":false,"actions":[""]}}'
+      - '{"config":{"id":1001,"category":"Kubernetes","comment":"Allow HMCTS registries","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/"}],"disable":false,"actions":[""]}}'
+
 neuvector:
   registry: hmctsprivate.azurecr.io
   tag: 2.5.0

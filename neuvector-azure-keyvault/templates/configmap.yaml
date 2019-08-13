@@ -23,10 +23,11 @@ data:
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # Authenticate and check if password has been changed
-    echo "Getting authentication token..."
+    echo "Getting default authentication token..."
     TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]
     then
+      echo "Getting authentication token..."
       TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
       _NEW_TOKEN="1"
     fi
@@ -42,7 +43,6 @@ data:
     then
       echo "Changing default admin password..."
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
-      echo ""
       echo "Re-authenticating..."
       TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     fi
@@ -51,4 +51,24 @@ data:
     echo "Setting Slack webhook URL..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
 
-    echo "Done"
+    # Set deny admission rules
+    if [ "{{ .Values.rules.admission.deny }}" != "" ]
+    then
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X DELETE
+      for ar in $(echo {{ join .Values.rules.admission.deny  " " }})
+      do 
+        curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"${ar}"'"
+      done
+    fi
+
+    # Set exception admission rules
+    if [ "{{ .Values.rules.admission.exception }}" != "" ]
+    then
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X DELETE
+      for ar in $(echo {{ join .Values.rules.admission.exception  " " }})
+      do 
+        curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"${ar}"'"
+      done
+    fi
+
+    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/state -X PATCH -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}"}}'
