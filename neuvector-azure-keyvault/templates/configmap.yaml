@@ -52,7 +52,7 @@ data:
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
 
     # Set deny admission rules
-    if (( {{ len .Values.rules.admission.deny }} > 0 ))
+    if [[ {{ len .Values.rules.admission.deny }} -gt 0 ]]
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X DELETE
       echo "Setting Deny admission rules..."
@@ -63,7 +63,7 @@ data:
     fi
 
     # Set exception admission rules
-    if (( {{ len .Values.rules.admission.exception }} > 0 ))
+    if [[ {{ len .Values.rules.admission.exception }} -gt 0 ]]
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X DELETE
       echo "Setting Exception admission rules..."
