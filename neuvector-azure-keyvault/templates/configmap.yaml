@@ -56,7 +56,7 @@ data:
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X DELETE
       echo "Setting Deny admission rules..."
-      {{- range $ar := $.Values.rules.admission.deny }}
+      {{- range $ar := $.Values.rules.admission.deny | toJson }}
       echo "Setting deny rule: '{{ $ar }}'"
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"{{ $ar }}"'"
       {{- end }}
@@ -67,7 +67,7 @@ data:
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X DELETE
       echo "Setting Exception admission rules..."
-      {{- range $ar := $.Values.rules.admission.exception }}
+      {{- range $ar := $.Values.rules.admission.exception | toJson }}
       echo "Setting exception rule: '{{ $ar }}'"
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"{{ $ar }}"'"
       {{- end }}
