@@ -55,11 +55,11 @@ data:
     if [[ {{ len .Values.rules.admission.deny }} -gt 0 ]]
     then
       echo "Deleting existing Deny admission rules..."
-      curl -sk -H "X-Auth-Token: $TOKEN" -X DELETE  $API_URL/admission/rule/deny
+      curl -k -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rule/deny
       echo "Setting Deny admission rules..."
       {{- range $ar := $.Values.rules.admission.deny }}
       echo "Setting deny rule: '{{ $ar | toJson }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/deny
+      curl -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/deny
       {{- end }}
     fi
 
@@ -67,12 +67,13 @@ data:
     if [[ {{ len .Values.rules.admission.exception }} -gt 0 ]]
     then
       echo "Deleting existing Exception admission rules..."
-      curl -sk -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rule/exception
+      curl -k -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rule/exception
       echo "Setting Exception admission rules..."
       {{- range $ar := $.Values.rules.admission.exception }}
       echo "Setting exception rule: '{{ $ar | toJson }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/exception
+      curl -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/exception
       {{- end }}
     fi
 
+    echo "Updating status for admission rules..."
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}"}}' $API_URL/admission/state
