@@ -56,11 +56,10 @@ data:
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X DELETE
       echo "Setting Deny admission rules..."
-      for ar in $(echo '{{ .Values.rules.admission.deny | join " " }}')
-      do 
-        echo "Setting deny rule: $ar"
-        curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"${ar}"'"
-      done
+      {{- range $ar := $.Values.rules.admission.deny }}
+      echo "Setting deny rule: '{{ $ar }}'"
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"{{ $ar }}"'"
+      {{- end }}
     fi
 
     # Set exception admission rules
@@ -68,11 +67,10 @@ data:
     then
       curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X DELETE
       echo "Setting Exception admission rules..."
-      for ar in $(echo '{{ .Values.rules.admission.exception | join " " }}')
-      do 
-        echo "Setting exception rule: $ar"
-        curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"${ar}"'"
-      done
+      {{- range $ar := $.Values.rules.admission.exception }}
+      echo "Setting exception rule: '{{ $ar }}'"
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"{{ $ar }}"'"
+      {{- end }}
     fi
 
     curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/state -X PATCH -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}"}}'
