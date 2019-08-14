@@ -58,7 +58,7 @@ data:
       echo "Setting Deny admission rules..."
       {{- range $ar := $.Values.rules.admission.deny }}
       echo "Setting deny rule: '{{ $ar | toJson }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d "'"{{ $ar | toJson }}"'"
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/deny -X POST -d '{{ $ar | toJson }}'
       {{- end }}
     fi
 
@@ -69,7 +69,7 @@ data:
       echo "Setting Exception admission rules..."
       {{- range $ar := $.Values.rules.admission.exception }}
       echo "Setting exception rule: '{{ $ar | toJson }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d "'"{{ $ar | toJson }}"'"
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/admission/rule/exception -X POST -d '{{ $ar | toJson }}'
       {{- end }}
     fi
 
