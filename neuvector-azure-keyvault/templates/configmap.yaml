@@ -59,7 +59,7 @@ data:
       echo "Setting Deny admission rules..."
       {{- range $ar := $.Values.rules.admission.deny }}
       echo "Setting deny rule: '{{ $ar | toJson }}'"
-      curl -v -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/deny
+      curl --trace-ascii -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar | toJson }}' $API_URL/admission/rule/deny
       {{- end }}
     fi
 
