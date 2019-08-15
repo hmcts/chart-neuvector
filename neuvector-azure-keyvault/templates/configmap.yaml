@@ -22,44 +22,47 @@ data:
     NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensececretname }})
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
+    # alias curl for convenience
+    _CURL="curl -sk --show-error --fail"
+
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
-    TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+    TOKEN=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]
     then
       echo "Getting authentication token..."
-      TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+      TOKEN=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
       _NEW_TOKEN="1"
     fi
     
     echo "Accepting EULA..."
-    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
 
     echo "Setting license..."
-    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
 
     # Change admin password
     if [ "$_NEW_TOKEN" == "" ]
     then
       echo "Changing default admin password..."
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
       echo "Re-authenticating..."
-      TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+      TOKEN=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
     fi
 
     # Set the Slack webhook URL
     echo "Setting Slack webhook URL..."
-    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
 
     # Set deny admission rules
     if [[ {{ len .Values.rules.admission.deny }} -gt 0 ]]
     then
       echo "Deleting existing Deny admission rules..."
-      curl -sk -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rules/deny
+      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rules/deny
       echo "Setting Deny admission rules..."
       {{- range $ar := $.Values.rules.admission.deny }}
-      echo "Setting deny rule: '{{ $ar }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/deny
+      echo "Setting deny rule: '{{ $ar | toJson }}'"
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/deny
       {{- end }}
     fi
 
@@ -67,15 +70,15 @@ data:
     if [[ {{ len .Values.rules.admission.exception }} -gt 0 ]]
     then
       echo "Deleting existing Exception admission rules..."
-      curl -sk -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rules/exception
+      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/admission/rules/exception
       echo "Setting Exception admission rules..."
       {{- range $ar := $.Values.rules.admission.exception }}
-      echo "Setting exception rule: '{{ $ar }}'"
-      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/exception
+      echo "Setting exception rule: '{{ $ar | toJson }}'"
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/exception
       {{- end }}
     fi
 
     echo "Updating status for admission rules..."
-    curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH \
-      -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}' \
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH \
+      -d '{"state":{"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}' \
       $API_URL/admission/state
