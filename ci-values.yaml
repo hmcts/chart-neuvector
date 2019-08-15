@@ -21,6 +21,9 @@ rules:
       - '{"config":{"id":2,"category":"Kubernetes","comment":"Allow deployments in NeuVector namespace","criteria":[{"name":"namespace","op":"containsAny","value":"neuvector"}],"disable":false,"actions":[]}}'
       - '{"config":{"id":1000,"category":"Kubernetes","comment":"Allow admin namespaces","criteria":[{"name":"namespace","op":"containsAny","value":"admin,kured"}],"disable":false,"actions":[]}}'
       - '{"config":{"id":1001,"category":"Kubernetes","comment":"Allow HMCTS registries","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/"}],"disable":false,"actions":[]}}'
+    defaultAction: "allow"
+    admClientmMde: "service"
+    service: "neuvector"
 
 neuvector:
   registry: hmctsprivate.azurecr.io

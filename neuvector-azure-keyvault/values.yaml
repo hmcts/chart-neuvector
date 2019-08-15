@@ -16,6 +16,9 @@ rules:
     mode: "Monitor"
     deny: []
     exception: []
+    defaultAction: "allow"
+    admClientMode: "service"
+    service: "neuvector"
 
 neuvector:
   registry: hmctsprivate.azurecr.io
