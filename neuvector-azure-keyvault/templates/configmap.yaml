@@ -23,7 +23,7 @@ data:
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # alias curl for convenience
-    _CURL="curl -sk --show-error --fail"
+    _CURL="curl -sk --show-error"
 
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
