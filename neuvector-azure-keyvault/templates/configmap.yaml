@@ -59,7 +59,7 @@ data:
       echo "Setting Deny admission rules..."
       {{- range $ar := $.Values.rules.admission.deny }}
       echo "Setting deny rule: '{{ $ar }}'"
-      curl -k --trace-ascii - -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/deny
+      curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/admission/rule/deny
       {{- end }}
     fi
 
@@ -76,4 +76,4 @@ data:
     fi
 
     echo "Updating status for admission rules..."
-    curl -s -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}"}}' $API_URL/admission/state
+    curl --trace-ascii - -k -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{"state": {"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}"}}' $API_URL/admission/state
