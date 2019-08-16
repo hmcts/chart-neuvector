@@ -87,10 +87,10 @@ data:
     if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
     then
       echo "Deleting existing response rules..."
-      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/response/rules
+      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/response/rule
       echo "Setting response rules..."
       {{- range $ar := $.Values.rules.response.policies }}
       echo "Setting response rule: '{{ $ar | toJson }}'"
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{{ $ar }}' $API_URL/responsePolicy
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' $API_URL/response/rule
       {{- end }}
     fi
