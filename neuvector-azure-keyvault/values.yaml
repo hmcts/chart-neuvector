@@ -19,6 +19,8 @@ rules:
     defaultAction: "allow"
     admClientMode: "service"
     service: "neuvector"
+  response:
+    policies: []
 
 neuvector:
   registry: hmctsprivate.azurecr.io
