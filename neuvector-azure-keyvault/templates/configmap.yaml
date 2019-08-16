@@ -23,7 +23,7 @@ data:
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # alias curl for convenience
-    _CURL="curl -sk --show-error"
+    _CURL="curl -sk --show-error --fail"
 
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
@@ -78,5 +78,7 @@ data:
       {{- end }}
     fi
 
-    echo "Updating status for admission rules..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{"state":{"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}'  $API_URL/admission/state
+    echo "Updating state for admission rules..."
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH \
+      -d '{"state":{"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}' \
+      $API_URL/admission/state
