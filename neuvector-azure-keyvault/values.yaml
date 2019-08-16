@@ -13,7 +13,7 @@ keyvault:
 rules:
   admission:
     enable: false
-    mode: "Monitor"
+    mode: "monitor"  # one of: monitor, protect
     deny: []
     exception: []
     defaultAction: "allow"
