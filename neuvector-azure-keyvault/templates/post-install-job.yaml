@@ -8,7 +8,7 @@ metadata:
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     app.kubernetes.io/name: {{ template "chart-neuvector.name" . }}
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation # preserve job pod but delete before next install/upgrade
 spec:
   template:
