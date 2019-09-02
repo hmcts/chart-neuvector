@@ -43,7 +43,12 @@ data:
     fi
 
     echo "Setting license..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
+    LICENSE=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/license | jq -r .license.info.email)
+    echo "Currently registered to $LICENSE"
+    if [[ "$LICENSE" == "null" ]]
+    then
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
+    fi
 
     # Change admin password
     if [ "$_NEW_TOKEN" == "" ]
