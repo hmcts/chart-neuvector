@@ -36,7 +36,11 @@ data:
     fi
     
     echo "Accepting EULA..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
+    EULA=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula | jq -r .eula.accepted)
+    if [[ "$EULA" != "true" ]]
+    then
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
+    fi
 
     echo "Setting license..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
