@@ -36,7 +36,7 @@ data:
     fi
     
     echo "Accepting EULA..."
-    EULA=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -$API_URL/eula | jq -r .eula.accepted)
+    EULA=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula | jq -r .eula.accepted)
     if [[ "$EULA" != "true" ]]
     then
       $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
