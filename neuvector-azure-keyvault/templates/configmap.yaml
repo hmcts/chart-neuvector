@@ -65,7 +65,7 @@ data:
 
     # Set Auto-scan
     echo "Setting Auto-scan..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":true}}'
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":{{ .Values.config.autoScan }}}}'
 
     # Set deny admission rules
     if [[ {{ len .Values.rules.admission.deny }} -gt 0 ]]
