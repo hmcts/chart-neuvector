@@ -63,6 +63,10 @@ data:
     echo "Setting Slack webhook URL..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
 
+    # Set Auto-scan
+    echo "Setting Auto-scan..."
+    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":true}}'
+
     # Set deny admission rules
     if [[ {{ len .Values.rules.admission.deny }} -gt 0 ]]
     then

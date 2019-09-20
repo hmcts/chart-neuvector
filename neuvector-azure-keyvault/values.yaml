@@ -22,6 +22,9 @@ rules:
   response:
     policies: []
 
+config:
+  autoScan: false
+
 neuvector:
   registry: hmctsprivate.azurecr.io
   tag: 2.5.0
