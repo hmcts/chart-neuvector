@@ -23,7 +23,7 @@ rules:
     policies: []
 
 config:
-  autoScan: false
+  autoScan: true
 
 neuvector:
   registry: hmctsprivate.azurecr.io
