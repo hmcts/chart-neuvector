@@ -2,3 +2,4 @@
 *.iml
 .idea
 requirements.lock
+local.yaml

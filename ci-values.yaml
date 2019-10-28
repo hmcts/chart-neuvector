@@ -34,6 +34,13 @@ rules:
       - '{"insert":{"after":5,"rules":[{"group":null,"conditions":[{"type":"name","value":"Container.Quarantined"}],"actions":["webhook"],"event":"event","disable":false}]}}'
       - '{"insert":{"after":6,"rules":[{"group":null,"conditions":[{"type":"number","value":"5.4"}],"actions":["webhook"],"event":"benchmark","disable":true}]}}'
 
+groups:
+  - '{"config":{"name":"AzurePostgreSQL","criteria":[{"key": "address", "value": "*.postgres.database.azure.com", "op": "="}]}}'
+  - '{"config":{"name":"ApplicationInsights","criteria":[{"key": "address", "value": "dc.services.visualstudio.com", "op": "="}, {"key": "address", "value": "dc.applicationinsights.microsoft.com", "op": "="}, {"key": "address", "value": "euw.rt.prod.applicationinsights.trafficmanager.net", "op": "="}]}}'
+  - '{"config":{"name":"GovUkNotify","criteria":[{"key": "address", "value": "api.notifications.service.gov.uk", "op": "="}]}}'
+  - '{"config":{"name":"GovUkPay","criteria":[{"key": "address", "value": "publicapi.payments.service.gov.uk", "op": "="}]}}'
+  - '{"config":{"name":"GovUkBankHolidays","criteria":[{"key": "address", "value": "www.gov.uk", "op": "="}]}}'
+
 neuvector:
   registry: hmctsprivate.azurecr.io
   tag: 2.5.0
