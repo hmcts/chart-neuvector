@@ -21,6 +21,7 @@ rules:
     service: "neuvector"
   response:
     policies: []
+    network: []
 
 groups:
 
