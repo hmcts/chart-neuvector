@@ -34,7 +34,7 @@ neuvector:
 
   manager:
     svc:
-      type: LoadBalancer
+      type: ClusterIP
 
   controller:
     ingress:

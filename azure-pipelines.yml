@@ -24,8 +24,8 @@ jobs:
       chartName: neuvector-azure-keyvault
       chartReleaseName: chart-neuvector-azure-keyvault-ci
       chartNamespace: neuvector
-      helmDeleteWait: "180"
-      helmInstallWait: "180"
+      helmDeleteWait: "1"
+      helmInstallWait: "1"
       helmInstallTimeout: "300"
       serviceConnection: "DCD-CFTAPPS-SBOX"
       aksResourceGroup: "sbox-01-rg"
