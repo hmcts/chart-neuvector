@@ -26,7 +26,7 @@ jobs:
       chartNamespace: neuvector
       helmDeleteWait: "1"
       helmInstallWait: "1"
-      helmInstallTimeout: "300"
+      helmInstallTimeout: "500"
       serviceConnection: "DCD-CFTAPPS-SBOX"
       aksResourceGroup: "sbox-01-rg"
       aksCluster: "sbox-01-aks"
