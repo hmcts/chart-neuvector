@@ -23,7 +23,7 @@ rules:
     policies: []
     network: []
 
-groups:
+groups: []
 
 config:
   autoScan: true
