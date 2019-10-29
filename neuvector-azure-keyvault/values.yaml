@@ -21,17 +21,20 @@ rules:
     service: "neuvector"
   response:
     policies: []
+  network: []
+
+groups: []
 
 config:
   autoScan: true
 
 neuvector:
   registry: hmctsprivate.azurecr.io
-  tag: 2.5.0
+  tag: 2.5.3
 
   manager:
     svc:
-      type: LoadBalancer
+      type: ClusterIP
 
   controller:
     ingress:

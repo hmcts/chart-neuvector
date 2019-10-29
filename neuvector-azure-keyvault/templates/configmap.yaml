@@ -107,3 +107,47 @@ data:
       $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' $API_URL/response/rule
       {{- end }}
     fi
+
+    if [[ {{ len .Values.groups }} -gt 0 ]]
+    then
+      echo "Adding groups"
+
+      {{- range $ar := $.Values.groups }}
+      echo "Setting group: '{{ $ar | toJson }}'"
+
+      GROUP_NAME=$(echo '{{ $ar }}' | jq -r .config.name)
+
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/group/${GROUP_NAME})
+      if [ $STATUS_CODE -eq 404 ]
+      then
+        # create
+       echo "Creating group for ${GROUP_NAME}"
+       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' $API_URL/group
+      else
+        # update
+        echo "Updating group for ${GROUP_NAME}"
+        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' $API_URL/group/${GROUP_NAME}
+      fi
+      {{- end }}
+    fi
+
+    if [[ {{ len .Values.rules.network }} -gt 0 ]]
+    then
+      {{- range $i, $ar := $.Values.rules.network }}
+      
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/policy/rule/{{ add $i 1 }})
+
+      if [ $STATUS_CODE -eq 404 ]
+      then
+        # create
+       echo "Creating network rule for id {{ add $i 1 }}"
+       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.create }}' $API_URL/policy/rule
+      else
+        # update
+        echo "Updating network rule for id {{ add $i 1 }}"
+        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.update }}' $API_URL/policy/rule/{{ add $i 1 }}
+      fi
+
+      
+      {{- end }}
+    fi
