@@ -11,7 +11,7 @@ data:
   config.sh: |
     #!/bin/sh
 
-    set -e
+    set -ex
 
     # NV API URL. Note just using hostname doesn't always resolve...
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
