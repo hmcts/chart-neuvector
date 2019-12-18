@@ -29,7 +29,7 @@ config:
 
 neuvector:
   registry: hmctsprivate.azurecr.io
-  tag: 3.1.0
+  tag: 3.1.1
 
   manager:
     svc:
