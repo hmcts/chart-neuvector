@@ -23,7 +23,7 @@ data:
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # alias curl for convenience
-    _CURL="curl -sk --show-error --fail"
+    _CURL="curl -vk --show-error --fail"
 
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
@@ -43,7 +43,7 @@ data:
     sleep 10
 
     echo "Accepting EULA..."
-    EULA_RESPONSE=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula)
+    EULA_RESPONSE=$(curl -vk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula)
     echo "${EULA_RESPONSE}"
     EULA=$(echo "${EULA_RESPONSE}" | jq -r .eula.accepted)
     if [[ "$EULA" != "true" ]]
