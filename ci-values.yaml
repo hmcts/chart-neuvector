@@ -29,7 +29,7 @@ rules:
       - '{"insert":{"after":3,"rules":[{"group":null,"conditions":[{"type":"name","value":"Container.Privilege.Escalation"}],"actions":["quarantine"],"event":"security-event","disable":true}]}}'
       - '{"insert":{"after":4,"rules":[{"group":null,"conditions":[{"type":"cve-high","value":"10"}],"actions":["quarantine"],"event":"cve-report","disable":true}]}}'
       - '{"insert":{"after":5,"rules":[{"group":null,"conditions":[{"type":"name","value":"Container.Quarantined"}],"actions":["webhook"],"event":"event","disable":false}]}}'
-      - '{"insert":{"after":6,"rules":[{"group":null,"conditions":[{"type":"number","value":"5.4"}],"actions":["webhook"],"event":"benchmark","disable":true}]}}'
+      - '{"insert":{"after":6,"rules":[{"group":null,"conditions":[{"type":"name","value":"5.4"}],"actions":["webhook"],"event":"compliance","disable":true}]}}'
   network: # IDs must match array index + 1
     - create: '{"insert":{"after":0,"rules":[{"id":1,"comment":"","from":"AzurePostgreSQL","to":"AzurePostgreSQL","ports":"tcp/5432","action":"allow","applications":["PostgreSQL","SSL","HTTP"],"disable":false,"learned": false}]}}'
       update: '{"config":{"id":1,"comment":"","from":"AzurePostgreSQL","to":"AzurePostgreSQL","ports":"tcp/5432","action":"allow","applications":["PostgreSQL","SSL","HTTP"],"disable":false}}'

@@ -11,7 +11,7 @@ data:
   config.sh: |
     #!/bin/sh
 
-    set -ex
+    set -e
 
     # NV API URL. Note just using hostname doesn't always resolve...
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
@@ -72,7 +72,7 @@ data:
     echo "Setting Auto-scan..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":{{ .Values.config.autoScan }}}}'
 
-    # Set deny admission rules
+    # Set admission rules
     if [[ {{ len .Values.rules.admission.rules }} -gt 0 ]]
     then
       {{- range $i, $ar := $.Values.rules.admission.rules }}
@@ -101,11 +101,11 @@ data:
     if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
     then
       echo "Deleting existing response rules..."
-      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE $API_URL/response/rule
+      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE "$API_URL/response/rule?scope=local"
       echo "Setting response rules..."
       {{- range $ar := $.Values.rules.response.policies }}
       echo "Setting response rule: '{{ $ar | toJson }}'"
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' $API_URL/response/rule
+      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/response/rule?scope=local"
       {{- end }}
     fi
 
@@ -118,16 +118,16 @@ data:
 
       GROUP_NAME=$(echo '{{ $ar }}' | jq -r .config.name)
 
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/group/${GROUP_NAME})
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" "$API_URL/group/${GROUP_NAME}?scope=local")
       if [ $STATUS_CODE -eq 404 ]
       then
         # create
        echo "Creating group for ${GROUP_NAME}"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' $API_URL/group
+       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/group?scope=local"
       else
         # update
         echo "Updating group for ${GROUP_NAME}"
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' $API_URL/group/${GROUP_NAME}
+        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/group/${GROUP_NAME}?scope=local"
       fi
       {{- end }}
     fi
@@ -136,17 +136,17 @@ data:
     then
       {{- range $i, $ar := $.Values.rules.network }}
 
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/policy/rule/{{ add $i 1 }})
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" "$API_URL/policy/rule/{{ add $i 1 }}?scope=local")
 
       if [ $STATUS_CODE -eq 404 ]
       then
         # create
        echo "Creating network rule for id {{ add $i 1 }}"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.create }}' $API_URL/policy/rule
+       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.create }}' "$API_URL/policy/rule?scope=local"
       else
         # update
         echo "Updating network rule for id {{ add $i 1 }}"
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.update }}' $API_URL/policy/rule/{{ add $i 1 }}
+        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.update }}' "$API_URL/policy/rule/{{ add $i 1 }}?scope=local"
       fi
 
 
