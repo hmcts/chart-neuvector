@@ -40,4 +40,6 @@ neuvector:
       enabled: true
       host: neuvector.hmcts.com
       path: "/api"
+    apisvc:
+      type: ClusterIP
 
