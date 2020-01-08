@@ -40,8 +40,6 @@ data:
       TOKEN=$(echo "${RESULT}" | jq -r .token.token)
     fi
 
-    sleep 10
-
     echo "Accepting EULA..."
     EULA_RESPONSE=$(curl -vk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula)
     echo "${EULA_RESPONSE}"
