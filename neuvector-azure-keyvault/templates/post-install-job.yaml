@@ -1,7 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: neuvector-restapi-config-job
+  # we don't include neuvector in the pod name because then neuvector blocks anything 'unexpected'
+  name: restapi-config-job
   labels:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/instance: {{ .Release.Name }}
