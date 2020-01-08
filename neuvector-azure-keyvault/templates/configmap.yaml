@@ -11,7 +11,7 @@ data:
   config.sh: |
     #!/bin/sh
 
-    set -ex
+    set -e
 
     # NV API URL. Note just using hostname doesn't always resolve...
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
@@ -23,7 +23,7 @@ data:
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # alias curl for convenience
-    _CURL="curl -vk --show-error --fail"
+    _CURL="curl -sk --show-error --fail"
 
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
