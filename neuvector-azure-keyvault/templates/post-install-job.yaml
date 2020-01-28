@@ -41,7 +41,7 @@ spec:
             driver: azure/kv
             options:
               keyvaultname: {{ .Values.keyvault.name }}
-              keyvaultobjectnames: neuvector-admin-password;neuvector-new-admin-password;{{ .Values.keyvault.licensececretname }};neuvector-slack-webhook
+              keyvaultobjectnames: neuvector-admin-password;neuvector-new-admin-password;{{ .Values.keyvault.licensesecretname }};neuvector-slack-webhook
               keyvaultobjecttypes: secret;secret;secret;secret
               resourcegroup: {{ .Values.keyvault.resourcegroup }}
               subscriptionid: {{ .Values.keyvault.subscriptionid }}

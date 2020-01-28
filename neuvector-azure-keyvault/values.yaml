@@ -8,7 +8,7 @@ keyvault:
   resourcegroup: core-infra-sbox-rg
   subscriptionid: b72ab7b7-723f-4b18-b6f6-03b0f2c6a1bb
   tenantid: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
-  licensececretname: neuvector-license-dev
+  licensesecretname: neuvector-license-dev
 
 rules:
   admission:

@@ -19,7 +19,7 @@ data:
     # KV Flexvol secrets
     NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
     NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
-    NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensececretname }})
+    NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensesecretname }})
     NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
 
     # alias curl for convenience
@@ -80,7 +80,7 @@ data:
       {{- range $i, $ar := $.Values.rules.admission.rules }}
       echo "Setting admission rule: '{{ $ar | toJson }}'"
 
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/admission/rule/{{ add $i 1000 }})
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/admission/rule/{{ add $i 1000 }}?scope=local)
       if [ $STATUS_CODE -eq 404 ]
       then
         # create
