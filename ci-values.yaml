@@ -8,16 +8,17 @@ keyvault:
   resourcegroup: core-infra-sbox-rg
   subscriptionid: b72ab7b7-723f-4b18-b6f6-03b0f2c6a1bb
   tenantid: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
-  licensececretname: neuvector-license-dev
+  licensesecretname: neuvector-license-dev
 
 rules:
   admission:
     enable: true
     mode: "monitor" # one of: monitor, protect
     rules:
-      - '{"config":{"id":1000,"category":"Kubernetes","comment":"Allow admin namespaces","criteria":[{"name":"namespace","op":"containsAny","value":"admin,kured"}],"disable":false,"rule_type": "exception","cfg_type":"user_created"}}'
-      - '{"config":{"id":1001,"category":"Kubernetes","comment":"Allow HMCTS registries","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/"}],"disable":false,"rule_type": "exception","cfg_type":"user_created"}}'
-      - '{"config":{"id":1002,"category":"Kubernetes","comment":"Default deny","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://localhost/,https://*.*/"}],"disable":false,"rule_type": "deny","cfg_type":"user_created"}}'
+      - '{"config":{"id":1000,"category":"Kubernetes","comment":"Allow system namespaces","criteria":[{"name":"namespace","op":"containsAny","value":"neuvector,kube-system"}],"disable":false,"rule_type": "exception","cfg_type":"user_created"}}'
+      - '{"config":{"id":1001,"category":"Kubernetes","comment":"Allow admin namespaces","criteria":[{"name":"namespace","op":"containsAny","value":"admin,kured,neuvector"}],"disable":false,"rule_type": "exception","cfg_type":"user_created"}}'
+      - '{"config":{"id":1002,"category":"Kubernetes","comment":"Allow HMCTS registries","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/"}],"disable":false,"rule_type": "exception","cfg_type":"user_created"}}'
+      - '{"config":{"id":1003,"category":"Kubernetes","comment":"Default deny","criteria":[{"name":"imageRegistry","op":"containsAny","value":"https://localhost/,https://*.*/"}],"disable":false,"rule_type": "deny","cfg_type":"user_created"}}'
     defaultAction: "allow"
     admClientmMde: "service"
     service: "neuvector"
@@ -41,10 +42,17 @@ rules:
       update: '{"config":{"id":4,"comment":"","from":"GovUkPay","to":"GovUkPay","ports":"tcp/443","action":"allow","applications":["SSL","HTTP"],"disable":false}}'
     - create: '{"insert":{"after":4,"rules":[{"id":5,"comment":"","from":"GovUkBankHolidays","to":"GovUkBankHolidays","ports":"tcp/443","action":"allow","applications":["SSL","HTTP"],"disable":false,"learned": false}]}}'
       update: '{"config":{"id":5,"comment":"","from":"GovUkBankHolidays","to":"GovUkBankHolidays","ports":"tcp/443","action":"allow","applications":["SSL","HTTP"],"disable":false}}'
+    - create: '{"insert":{"after":5,"rules":[{"id":6,"comment":"","from":"AllPods","to":"ServiceBus","ports":"tcp/5671","action":"allow","applications":["SSL"],"disable":false,"learned": false}]}}'
+      update: '{"config":{"id":6,"comment":"","from":"AllPods","to":"ServiceBus","ports":"tcp/5671","action":"allow","applications":["SSL"],"disable":false}}'
+    - create: '{"insert":{"after":6,"rules":[{"id":7,"comment":"","from":"AllPods","to":"Mta","ports":"tcp/25","action":"allow","applications":[],"disable":false,"learned": false}]}}'
+      update: '{"config":{"id":7,"comment":"","from":"AllPods","to":"Mta","ports":"tcp/25","action":"allow","applications":[],"disable":false}}'
 
 groups:
   - '{"config":{"name":"AzurePostgreSQL","criteria":[{"key": "address", "value": "*.postgres.database.azure.com", "op": "="}]}}'
-  - '{"config":{"name":"ApplicationInsights","criteria":[{"key": "address", "value": "dc.services.visualstudio.com", "op": "="}, {"key": "address", "value": "dc.applicationinsights.microsoft.com", "op": "="}, {"key": "address", "value": "euw.rt.prod.applicationinsights.trafficmanager.net", "op": "="}]}}'
+  - '{"config":{"name":"ApplicationInsights","criteria":[{"key": "address", "value": "dc.services.visualstudio.com", "op": "="}, {"key": "address", "value": "rt.services.visualstudio.com", "op": "="}, {"key": "address", "value": "dc.applicationinsights.microsoft.com", "op": "="}, {"key": "address", "value": "euw.rt.prod.applicationinsights.trafficmanager.net", "op": "="}]}}'
   - '{"config":{"name":"GovUkNotify","criteria":[{"key": "address", "value": "api.notifications.service.gov.uk", "op": "="}]}}'
   - '{"config":{"name":"GovUkPay","criteria":[{"key": "address", "value": "publicapi.payments.service.gov.uk", "op": "="}]}}'
   - '{"config":{"name":"GovUkBankHolidays","criteria":[{"key": "address", "value": "www.gov.uk", "op": "="}]}}'
+  - '{"config":{"name":"AllPods","criteria":[{"key": "namespace", "value": "*", "op": "="}]}}'
+  - '{"config":{"name":"ServiceBus","criteria":[{"key": "address", "value": "*.servicebus.windows.net", "op": "="}]}}'
+  - '{"config":{"name":"Mta","criteria":[{"key": "address", "value": "mta.reform.hmcts.net", "op": "="}]}}'
