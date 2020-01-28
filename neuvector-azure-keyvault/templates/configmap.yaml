@@ -80,7 +80,7 @@ data:
       {{- range $i, $ar := $.Values.rules.admission.rules }}
       echo "Setting admission rule: '{{ $ar | toJson }}'"
 
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/admission/rule/{{ add $i 1000 }}?scope=local)
+      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/admission/rule/{{ add $i 2000 }}?scope=local)
       if [ $STATUS_CODE -eq 404 ]
       then
         # create
