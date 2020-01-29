@@ -78,18 +78,20 @@ data:
     if [[ {{ len .Values.rules.admission.rules }} -gt 0 ]]
     then
       {{- range $i, $ar := $.Values.rules.admission.rules }}
-      echo "Setting admission rule: '{{ $ar | toJson }}'"
+      ADMISSION_RULE='{{ $ar }}'
+      echo "Setting admission rule: $ADMISSION_RULE"
+      ADMISSION_RULE_ID=$(echo "$ADMISSION_RULE" | jq -r .config.id)
 
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" $API_URL/admission/rule/{{ add $i 1000 }}?scope=local)
+      echo $ADMISSION_RULE_ID |grep -q '^[0-9][0-9]*$'
+      [ "$?" != 0 ] && "Invalid admission rule id: ${ADMISSION_RULE_ID}"
+      STATUS_CODE=$(curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -o /dev/stderr -w "%{http_code}" -X PATCH -d '{{ $ar }}' "$API_URL/admission/rule?scope=local")
       if [ $STATUS_CODE -eq 404 ]
       then
         # create
-       echo "Creating admission rule"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/admission/rule?scope=local"
+        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/admission/rule?scope=local"
+        echo "Admission rule created"
       else
-        # update
-        echo "Updating admission rule"
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/admission/rule?scope=local"
+        echo "Admission rule updated"        
       fi
       {{- end }}
     fi
