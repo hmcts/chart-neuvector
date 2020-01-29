@@ -82,6 +82,8 @@ data:
       echo "Setting admission rule: $ADMISSION_RULE"
       ADMISSION_RULE_ID=$(echo "$ADMISSION_RULE" | jq -r .config.id)
 
+      echo $ADMISSION_RULE_ID |grep -q '^[0-9][0-9]*$'
+      [ "$?" != 0 ] && "Invalid admission rule id: ${ADMISSION_RULE_ID}"
       STATUS_CODE=$(curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -o /dev/stderr -w "%{http_code}" -X PATCH -d '{{ $ar }}' "$API_URL/admission/rule?scope=local")
       if [ $STATUS_CODE -eq 404 ]
       then
