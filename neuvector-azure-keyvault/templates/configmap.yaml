@@ -146,7 +146,7 @@ data:
       then
         # create
        echo "Creating network rule for id {{ add $i 1 }}"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.create }}' "$API_URL/policy/rule?scope=local"
+       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar.create }}' "$API_URL/policy/rule?scope=local"
       else
         # update
         echo "Updating network rule for id {{ add $i 1 }}"
