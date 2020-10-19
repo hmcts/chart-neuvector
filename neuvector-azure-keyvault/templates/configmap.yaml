@@ -25,6 +25,9 @@ data:
     # alias curl for convenience
     _CURL="curl -sk --show-error --fail"
 
+    # sleep as neuvector backup loads aynschronously, and has caused corrupted config
+    sleep 180
+
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
     set +e
