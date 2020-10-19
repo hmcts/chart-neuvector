@@ -26,6 +26,7 @@ groups: []
 
 config:
   autoScan: true
+  sleep: 180
 
 neuvector:
   registry: hmctsprivate.azurecr.io
