@@ -26,7 +26,7 @@ data:
     _CURL="curl -sk --show-error --fail"
 
     # sleep as neuvector backup loads aynschronously, and has caused corrupted config
-    echo "Delay configuration for neuvector to load backup first"
+    echo "Delay configuration for neuvector to load backup first..."
     sleep {{ .Values.config.sleep }}
 
     # Authenticate and check if password has been changed
