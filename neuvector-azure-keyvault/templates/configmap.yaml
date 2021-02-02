@@ -17,7 +17,8 @@ data:
     {{ if eq .Values.manager.env.ssl "false" }}
     API_URL="http://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
     {{ else }}
-    API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1" 
+    API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
+    {{ end }}
 
     # KV Flexvol secrets
     NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
