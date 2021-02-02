@@ -35,6 +35,8 @@ neuvector:
   manager:
     svc:
       type: ClusterIP
+    env:
+      ssl: false
 
   controller:
     ingress:
