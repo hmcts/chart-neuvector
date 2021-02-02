@@ -14,7 +14,10 @@ data:
     set -e
 
     # NV API URL. Note just using hostname doesn't always resolve...
-    API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
+    {{ if eq .Values.manager.env.ssl "false" }}
+    API_URL="http://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
+    {{ else }}
+    API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1" 
 
     # KV Flexvol secrets
     NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
