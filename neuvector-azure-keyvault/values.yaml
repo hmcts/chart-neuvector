@@ -39,7 +39,7 @@ neuvector:
     svc:
       type: ClusterIP
     env:
-      ssl: false
+      ssl: true
 
   controller:
     ingress:
