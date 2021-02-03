@@ -56,3 +56,5 @@ groups:
   - '{"config":{"name":"AllPods","criteria":[{"key": "namespace", "value": "*", "op": "="}]}}'
   - '{"config":{"name":"ServiceBus","criteria":[{"key": "address", "value": "*.servicebus.windows.net", "op": "="}]}}'
   - '{"config":{"name":"Mta","criteria":[{"key": "address", "value": "mta.reform.hmcts.net", "op": "="}]}}'
+config:
+  sleep: 10 # we dont use backup in ci, we don't need long sleep

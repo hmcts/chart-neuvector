@@ -30,8 +30,8 @@ config:
 
 neuvector:
   registry: hmctsprivate.azurecr.io
-  tag: 3.1.1
- 
+  tag: 4.0.1
+
   containerd:
     enabled: true
 
