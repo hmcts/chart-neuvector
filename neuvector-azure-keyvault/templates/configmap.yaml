@@ -21,10 +21,10 @@ data:
     {{ end }}
 
     # KV Flexvol secrets
-    NV_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-admin-password)
-    NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
-    NV_LICENSE=$(cat /kvmnt/{{ .Values.keyvault.licensesecretname }})
-    NV_SLACK_WEBHOOK=$(cat /kvmnt/neuvector-slack-webhook)
+    NV_ADMIN_PASSWORD=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-admin-password)
+    NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-new-admin-password)
+    NV_LICENSE=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/{{ .Values.keyvault.licensesecretname }})
+    NV_SLACK_WEBHOOK=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-slack-webhook)
 
     # alias curl for convenience
     _CURL="curl -sk --show-error --fail"
