@@ -1,3 +1,4 @@
+{{- if .Values.keyVaults -}}
 ---
 apiVersion: v1
 kind: Pod
@@ -57,3 +58,5 @@ data:
     [ "$EULA" != "true" ] && exit 1
 
     exit 0
+{{- end -}}
+

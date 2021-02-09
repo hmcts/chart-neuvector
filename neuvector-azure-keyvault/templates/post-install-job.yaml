@@ -1,3 +1,4 @@
+{{- if .Values.keyVaults -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -34,3 +35,4 @@ spec:
           configMap:
             name: neuvector-restapi-config
             defaultMode: 0755
+{{- end -}}
