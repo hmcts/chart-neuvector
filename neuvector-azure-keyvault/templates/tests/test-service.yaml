@@ -9,7 +9,7 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
   labels:
-    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}-neuvector
+    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
   containers:
     - name: {{ .Release.Name }}-test-service
