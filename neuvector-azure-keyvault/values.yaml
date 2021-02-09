@@ -42,19 +42,10 @@ neuvector:
     apisvc:
       type: ClusterIP
 
-keyVaults:
-  cftapps-sbox:
-    secrets:
-      - neuvector-admin-password  
-      - neuvector-license-dev
-      - neuvector-slack-webhook
-      - neuvector-new-admin-password
 global:
   enableKeyVaults: true 
   tenantId: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
 
-
 keyvault: 
-  name: cftapps-sbox
   licensesecretname: neuvector-license-dev
   aadpodidbinding: neuvector
