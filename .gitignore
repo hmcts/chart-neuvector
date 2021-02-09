@@ -3,3 +3,4 @@
 .idea
 requirements.lock
 local.yaml
+neuvector-azure-keyvault/charts/
