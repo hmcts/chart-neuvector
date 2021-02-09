@@ -57,3 +57,4 @@ global:
 keyvault: 
   name: cftapps-sbox
   licensesecretname: neuvector-license-dev
+  aadpodidbinding: neuvector
