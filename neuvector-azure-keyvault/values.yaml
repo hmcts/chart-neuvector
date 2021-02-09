@@ -24,6 +24,8 @@ config:
 neuvector:
   registry: hmctsprivate.azurecr.io
   tag: 4.1.2
+  crdwebhook:
+    enabled: false
 
   containerd:
     enabled: true

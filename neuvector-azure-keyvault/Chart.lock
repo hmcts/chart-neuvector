@@ -5,5 +5,8 @@ dependencies:
 - name: core
   repository: https://neuvector.github.io/neuvector-helm/
   version: 1.6.9
-digest: sha256:681b9b6c3768dfbb23cd278a5b992052ffba9abd253b57626342cad9db69aabd
-generated: "2021-02-09T11:58:23.833692Z"
+- name: crd
+  repository: https://neuvector.github.io/neuvector-helm/
+  version: 1.6.9
+digest: sha256:44150940ed1c676718d0e9405e64629bd252a048eae811891f38944f0e8a38da
+generated: "2021-02-09T12:13:27.527268Z"
