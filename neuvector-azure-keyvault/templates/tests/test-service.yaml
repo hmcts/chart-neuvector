@@ -8,38 +8,27 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
   labels:
-    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
+    aadpodidbinding: {{  .Release.Name  }}-testneuvector
 spec:
-  volumes:
-    - name: configmap-volume
-      configMap:
-        defaultMode: 0755
-        name: {{ .Release.Name }}-test-configmap
-    - name: flexvol
-      flexVolume:
-        driver: azure/kv
-        options:
-          keyvaultname: {{ .Values.keyvault.name }}
-          keyvaultobjectnames: neuvector-new-admin-password
-          keyvaultobjecttypes: secret
-          resourcegroup: {{ .Values.keyvault.resourcegroup }}
-          subscriptionid: {{ .Values.keyvault.subscriptionid }}
-          tenantid: {{ .Values.keyvault.tenantid }}
-          usepodidentity: "true"
   containers:
     - name: {{ .Release.Name }}-test-service
       image: hmctspublic.azurecr.io/docker-curl
-      volumeMounts:
-        - name: configmap-volume
+      command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+      {{- ( include "hmcts.secretMounts.v1" . ) | indent 6   }}
+        - name: config-volume
           mountPath: /entrypoint
-        - name: flexvol
-          mountPath: /kvmnt
-          readOnly: true
       env:
         - name: SERVICE_NAME
           value: {{ .Release.Name }}
       command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
   restartPolicy: Never
+
+  {{- ( include "hmcts.secretCSIVolumes.v1" . ) | indent 2 }}
+    - name: config-volume
+      configMap:
+        name: {{ .Release.Name }}-test-configmap
+        defaultMode: 0755
+
 
 ---
 apiVersion: v1
@@ -57,7 +46,7 @@ data:
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
     # KV Flexvol secrets
-    NV_NEW_ADMIN_PASSWORD=$(cat /kvmnt/neuvector-new-admin-password)
+    NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-new-admin-password)
 
     echo "Getting authentication token..."
     TOKEN=$(curl -sk -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
