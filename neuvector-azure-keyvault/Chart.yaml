@@ -8,7 +8,7 @@ dependencies:
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: core
     alias: neuvector
-    version: 1.6.9
+    version: 1.7.0
     repository: https://neuvector.github.io/neuvector-helm/
   - name: crd
     version: 1.6.9
