@@ -1,4 +1,15 @@
-apiVersion: v1
+apiVersion: v2
 description: A Helm chart for NeuVector
 name: neuvector-azure-keyvault
 version: 1.1.2
+dependencies:
+  - name: library
+    version: 0.4.3
+    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+  - name: core
+    alias: neuvector
+    version: 1.7.0
+    repository: https://neuvector.github.io/neuvector-helm/
+  - name: crd
+    version: 1.6.9
+    repository: https://neuvector.github.io/neuvector-helm/

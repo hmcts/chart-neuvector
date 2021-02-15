@@ -23,7 +23,9 @@ config:
 
 neuvector:
   registry: hmctsprivate.azurecr.io
-  tag: 4.0.1
+  tag: 4.1.2
+  crdwebhook:
+    enabled: false
 
   containerd:
     enabled: true
@@ -43,9 +45,9 @@ neuvector:
       type: ClusterIP
 
 global:
-  enableKeyVaults: true 
+  enableKeyVaults: true
   tenantId: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
 
-keyvault: 
+keyvault:
   licensesecretname: neuvector-license-dev
   aadpodidbinding: neuvector
