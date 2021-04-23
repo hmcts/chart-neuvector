@@ -26,11 +26,11 @@ spec:
         - name: post-install-job
           image: hmctspublic.azurecr.io/docker-curl
           command: ["/bin/sh", "-c", "/etc/config/config.sh"]
-          {{- ( include "hmcts.secretMounts.v1" . ) | indent 10   }}
+          {{- ( include "hmcts.secretMounts.v2" . ) | indent 10   }}
             - name: config-volume
               mountPath: /etc/config
 
-      {{- ( include "hmcts.secretCSIVolumes.v1" . ) | indent 6 }}
+      {{- ( include "hmcts.secretCSIVolumes.v2" . ) | indent 6 }}
         - name: config-volume
           configMap:
             name: neuvector-restapi-config
