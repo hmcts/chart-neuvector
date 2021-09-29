@@ -48,5 +48,5 @@ jobs:
       chartReleaseName: chart-neuvector-azure-keyvault
       chartNamespace: neuvector
       serviceConnection: "DCD-CFTAPPS-SBOX"
-      aksResourceGroup: "sbox-00-rg"
-      aksCluster: "sbox-00-aks"
+      aksResourceGroup: "cft-sbox-00-rg"
+      aksCluster: "cft-sbox-00-aks"
