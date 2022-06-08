@@ -100,11 +100,6 @@ data:
       {{- end }}
     fi
 
-    echo "Updating state for admission rules..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH \
-      -d '{"state":{"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}' \
-      $API_URL/admission/state
-
     # Set response rules
     if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
     then
