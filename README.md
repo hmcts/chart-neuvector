@@ -8,7 +8,7 @@ As the chart pulls secrets from Azure keyvault using a secret volume, the change
 After installing Neuvector using the official Neuvector chart, this chart does the following:
 
 1. Accepts the EULA if not accepted already (i.e. because this is an upgrade)
-2. Sets the license key if not set already
+2. Sets the license key if not set already. You can set `config.forceLicenseUpdate` to `true` for force updating license
 3. Changes the default admin password if it has not been changed already
 4. Sets the Slack webhook URL
 5. Sets the admission rules
