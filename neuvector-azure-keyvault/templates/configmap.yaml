@@ -56,7 +56,7 @@ data:
     echo "Setting license..."
     LICENSE=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/license | jq -r .license.info.email)
     echo "Currently registered to $LICENSE"
-    if [[ "$LICENSE" == "null" ]]
+    if [[ "$LICENSE" == "null" || {{ .Values.config.forceLicenseUpdate }} ]]
     then
       $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
     fi
@@ -95,7 +95,7 @@ data:
         $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/admission/rule?scope=local"
         echo "Admission rule created"
       else
-        echo "Admission rule updated"        
+        echo "Admission rule updated"
       fi
       {{- end }}
     fi
