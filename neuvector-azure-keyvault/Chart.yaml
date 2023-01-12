@@ -11,5 +11,5 @@ dependencies:
     version: 2.2.4
     repository: https://neuvector.github.io/neuvector-helm/
   - name: crd
-    version: 2.2.4
+    version: 2.4.0
     repository: https://neuvector.github.io/neuvector-helm/
