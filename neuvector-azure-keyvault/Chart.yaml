@@ -8,9 +8,8 @@ dependencies:
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: core
     alias: neuvector
-    version: 2.0.0
-    # TODO switch back to upstream after https://github.com/neuvector/neuvector-helm/pull/115 is merged
-    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    version: 2.2.4
+    repository: https://neuvector.github.io/neuvector-helm/
   - name: crd
-    version: 2.0.0
-    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    version: 2.2.4
+    repository: https://neuvector.github.io/neuvector-helm/
