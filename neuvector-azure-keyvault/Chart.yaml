@@ -4,7 +4,7 @@ name: neuvector-azure-keyvault
 version: 1.1.4
 dependencies:
   - name: library
-    version: 1.1.6
+    version: 1.1.8
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: core
     alias: neuvector
