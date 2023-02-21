@@ -17,7 +17,7 @@ resources:
 jobs:
 - job: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    name: hmcts-sandbox-agent-pool-test
   steps:
   - template: steps/charts/validate.yaml@cnp-library
     parameters :
