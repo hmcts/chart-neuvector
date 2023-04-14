@@ -10,7 +10,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: admin-httptohttpsredirect@kubernetescrd
 spec:
   rules:
-    - host: {{ .Values.manager.ingress.host }}
+    - host: {{ .Values.neuvector.manager.ingress.host }}
       http:
         paths:
           - backend:
