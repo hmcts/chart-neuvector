@@ -21,3 +21,15 @@ For more information refer to the documentation related to Pod Identity and Azur
 
 The automated configuration script uses the Neuvector REST API therefore the controller service should be exposed at least internally 
 (i.e. without ingress).
+
+## Optional http->https redirect
+An optional http->https redirect can be enabled on the manager ingress by setting the following boolean parameter:
+
+```yaml
+spec:
+  values:
+    neuvector:
+      manager:
+        ingress:
+          httpredirect: true
+```
