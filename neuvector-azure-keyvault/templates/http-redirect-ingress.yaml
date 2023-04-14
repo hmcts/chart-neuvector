@@ -1,4 +1,4 @@
-{{ if .Values.neuvector.manaer.ingress.httpredirect }}
+{{ if .Values.neuvector.manager.ingress.httpredirect }}
 ---
 # relies on httptohttpsredirect middleware existing in admin namespace. definied in cnp-flux-config
 apiVersion: networking.k8s.io/v1
