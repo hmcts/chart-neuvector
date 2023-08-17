@@ -23,6 +23,7 @@ config:
   forceLicenseUpdate: false
 
 neuvector:
+  registry: hmctspublic.azurecr.io
   crdwebhook:
     enabled: false
 
@@ -30,6 +31,8 @@ neuvector:
     enabled: true
 
   manager:
+    image:
+      repository: imported/neuvector/manager
     tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Equal"
@@ -89,6 +92,8 @@ neuvector:
                     values:
                       - system
   controller:
+    image:
+      repository: imported/neuvector/controller
     tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Equal"
