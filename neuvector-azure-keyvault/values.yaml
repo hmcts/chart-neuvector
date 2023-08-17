@@ -126,7 +126,10 @@ neuvector:
       path: "/api"
     apisvc:
       type: ClusterIP
-
+  enforcer:
+    image: imported/neuvector/enforcer
+  manager:
+    image: imported/neuvector/manager
 global:
   enableKeyVaults: true
   tenantId: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
