@@ -28,7 +28,7 @@ jobs:
       helmDeleteWait: "300"
       helmInstallWait: "300"
       helmInstallTimeout: "500"
-      serviceConnection: "DCD-CFTAPPS-SBOX"
+      # serviceConnection: "DCD-CFTAPPS-SBOX"
       # aksResourceGroup: "cft-sbox-00-rg"
       # aksCluster: "cft-sbox-00-aks"
 
