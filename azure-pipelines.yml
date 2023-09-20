@@ -29,8 +29,8 @@ jobs:
       helmInstallWait: "300"
       helmInstallTimeout: "500"
       serviceConnection: "DCD-CFTAPPS-SBOX"
-      aksResourceGroup: "cft-sbox-00-rg"
-      aksCluster: "cft-sbox-00-aks"
+      # aksResourceGroup: "cft-sbox-00-rg"
+      # aksCluster: "cft-sbox-00-aks"
 
 - job: Release
   # Make sure we have a tag to run this job
