@@ -23,6 +23,7 @@ config:
   forceLicenseUpdate: false
 
 neuvector:
+  registry: hmctspublic.azurecr.io
   crdwebhook:
     enabled: false
 
@@ -30,6 +31,8 @@ neuvector:
     enabled: true
 
   manager:
+    image:
+      repository: imported/neuvector/manager
     tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Equal"
@@ -89,6 +92,8 @@ neuvector:
                     values:
                       - system
   controller:
+    image:
+      repository: imported/neuvector/controller
     tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Equal"
@@ -121,6 +126,16 @@ neuvector:
       path: "/api"
     apisvc:
       type: ClusterIP
+
+  enforcer:
+    image:
+      repository: imported/neuvector/enforcer
+  scanner:
+    image:
+      repository: imported/neuvector/scanner
+  updater:
+    image:
+      repository: imported/neuvector/updater
 
 global:
   enableKeyVaults: true
