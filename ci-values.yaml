@@ -71,5 +71,4 @@ keyvault:
 neuvector:
   cve:
     scanner:
-      image:
-        repository: neuvector/scanner
+      dockerPath: "imported/neuvector/scanner"
