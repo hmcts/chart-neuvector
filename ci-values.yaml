@@ -67,3 +67,9 @@ global:
 keyvault: 
   name: cftapps
   licensesecretname: neuvector-license-dev
+
+neuvector:
+  cve:
+    scanner:
+      image:
+        repository: neuvector/scanner
