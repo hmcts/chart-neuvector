@@ -128,4 +128,3 @@ global:
 
 keyvault:
   licensesecretname: neuvector-license-dev
-  aadpodidbinding: neuvector
