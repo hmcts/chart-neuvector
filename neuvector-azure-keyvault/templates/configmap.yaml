@@ -77,34 +77,7 @@ data:
     # Set Auto-scan
     echo "Setting Auto-scan..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":{{ .Values.config.autoScan }}}}'
-
-    # Set admission rules
-    if [[ {{ len .Values.rules.admission.rules }} -gt 0 ]]
-    then
-      {{- range $i, $ar := $.Values.rules.admission.rules }}
-      ADMISSION_RULE='{{ $ar }}'
-      echo "Setting admission rule: $ADMISSION_RULE"
-      ADMISSION_RULE_ID=$(echo "$ADMISSION_RULE" | jq -r .config.id)
-
-      echo $ADMISSION_RULE_ID |grep -q '^[0-9][0-9]*$'
-      [ "$?" != 0 ] && "Invalid admission rule id: ${ADMISSION_RULE_ID}"
-      STATUS_CODE=$(curl -sk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -o /dev/stderr -w "%{http_code}" -X PATCH -d '{{ $ar }}' "$API_URL/admission/rule?scope=local")
-      if [ $STATUS_CODE -eq 404 ]
-      then
-        # create
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/admission/rule?scope=local"
-        echo "Admission rule created"
-      else
-        echo "Admission rule updated"
-      fi
-      {{- end }}
-    fi
     
-    echo "Updating state for admission rules..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH \
-      -d '{"state":{"enable":{{ .Values.rules.admission.enable }},"mode":"{{ .Values.rules.admission.mode }}","default_action":"{{ .Values.rules.admission.defaultAction }}","adm_client_mode":"{{ .Values.rules.admission.admClientMode }}","adm_client_mode_options":{"service":"{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc","url":"https://{{ .Values.rules.admission.service }}-svc-admission-webhook.{{ .Values.rules.admission.service }}.svc:443"}}}' \
-      $API_URL/admission/state
-
     # Set response rules
     if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
     then
