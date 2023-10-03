@@ -53,7 +53,7 @@ config:
   sleep: 10 # we dont use backup in ci, we don't need long sleep
 
 keyVaults:
-  cftapps:
+  cftneuvector:
     secrets:
       - neuvector-admin-password  
       - neuvector-license-dev
@@ -65,7 +65,7 @@ global:
   environment: sbox
 
 keyvault: 
-  name: cftapps
+  name: cftneuvector
   licensesecretname: neuvector-license-dev
 
 neuvector:

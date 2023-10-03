@@ -19,8 +19,9 @@ spec:
       labels:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/name: {{ template "chart-neuvector.name" . }}
-        aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: {{ .Release.Namespace }}
       restartPolicy: OnFailure
       containers:
         - name: post-install-job
