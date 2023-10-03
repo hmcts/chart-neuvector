@@ -66,6 +66,8 @@ neuvector:
       ssl: true
   cve:
     scanner:
+      image:
+        repository: imported/neuvector/scanner
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Equal"
@@ -131,9 +133,6 @@ neuvector:
   enforcer:
     image:
       repository: imported/neuvector/enforcer
-  scanner:
-    image:
-      repository: imported/neuvector/scanner
   updater:
     image:
       repository: imported/neuvector/updater
