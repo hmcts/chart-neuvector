@@ -65,7 +65,7 @@ global:
   environment: sbox
 
 keyvault: 
-  name: cftapps
+  name: cftneuvector
   licensesecretname: neuvector-license-dev
 
 neuvector:
