@@ -11,6 +11,7 @@ metadata:
   labels:
     aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
+  serviceAccountName: {{ .Release.Namespace }}
   containers:
     - name: {{ .Release.Name }}-test-service
       image: hmctspublic.azurecr.io/docker-curl
