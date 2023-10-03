@@ -21,6 +21,7 @@ spec:
         app.kubernetes.io/name: {{ template "chart-neuvector.name" . }}
         azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: {{ .Release.Namespace }}
       restartPolicy: OnFailure
       containers:
         - name: post-install-job
