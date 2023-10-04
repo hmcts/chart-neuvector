@@ -1,0 +1,28 @@
+apiVersion: neuvector.com/v1
+kind: NvAdmissionControlSecurityRule
+metadata:
+  name: local
+spec:
+  config:
+    client_mode: service
+    enable: {{ .Values.rules.admission.enable }}
+    mode: {{ .Values.rules.admission.mode }}
+  rules:
+  - action: allow
+    comment: Allow admin namespaces
+    criteria:
+    - name: namespace
+      op: containsAny
+      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured
+  - action: allow
+    comment: Allow HMCTS registries
+    criteria:
+    - name: imageRegistry
+      op: containsAny
+      value: https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
+  - action: deny
+    comment: Default deny
+    criteria:
+    - name: imageRegistry
+      op: containsAny
+      value: https://localhost/,https://*.*/

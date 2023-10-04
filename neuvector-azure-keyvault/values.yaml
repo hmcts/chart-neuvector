@@ -6,8 +6,8 @@ useWorkloadIdentity: true
 
 rules:
   admission:
-    enable: false
-    mode: "monitor"  # one of: monitor, protect
+    enable: true
+    mode: "protect"  # one of: monitor, protect
     rules: []
     defaultAction: "allow"
     admClientMode: "service"
@@ -19,7 +19,6 @@ rules:
 groups: []
 
 config:
-  autoScan: true
   sleep: 180
   forceLicenseUpdate: false
 

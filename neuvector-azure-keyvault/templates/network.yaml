@@ -1,0 +1,332 @@
+apiVersion: v1
+items:
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: allpods
+    namespace: ""
+  spec:
+    dlp:
+      settings: []
+      status: true
+    egress:
+    - action: allow
+      applications:
+      - HTTP
+      - PostgreSQL
+      - SSL
+      name: AzurePostgreSQL-egress-0
+      ports: tcp/5432
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: '*.postgres.database.azure.com'
+        name: AzurePostgreSQL
+        original_name: ""
+    - action: allow
+      applications:
+      - HTTP
+      - SSL
+      name: ApplicationInsights-egress-1
+      ports: tcp/443
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: dc.services.visualstudio.com
+        - key: address
+          op: =
+          value: rt.services.visualstudio.com
+        - key: address
+          op: =
+          value: dc.applicationinsights.microsoft.com
+        - key: address
+          op: =
+          value: euw.rt.prod.applicationinsights.trafficmanager.net
+        name: ApplicationInsights
+        original_name: ""
+    - action: allow
+      applications:
+      - HTTP
+      - SSL
+      name: GovUkNotify-egress-2
+      ports: tcp/443
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: api.notifications.service.gov.uk
+        name: GovUkNotify
+        original_name: ""
+    - action: allow
+      applications:
+      - HTTP
+      - SSL
+      name: GovUkPay-egress-3
+      ports: tcp/443
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: publicapi.payments.service.gov.uk
+        name: GovUkPay
+        original_name: ""
+    - action: allow
+      applications:
+      - HTTP
+      - SSL
+      name: GovUkBankHolidays-egress-4
+      ports: tcp/443
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: www.gov.uk
+        name: GovUkBankHolidays
+        original_name: ""
+    - action: allow
+      applications:
+      - SSL
+      name: ServiceBus-egress-5
+      ports: tcp/5671
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: '*.servicebus.windows.net'
+        name: ServiceBus
+        original_name: ""
+    - action: allow
+      applications:
+      - any
+      name: Mta-egress-6
+      ports: tcp/25
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: mta.reform.hmcts.net
+        name: Mta
+        original_name: ""
+    - action: allow
+      applications:
+      - SSL
+      name: Idam-egress-7
+      ports: tcp/443
+      priority: 0
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: idam-api.platform.hmcts.net
+        name: Idam
+        original_name: ""
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: namespace
+          op: =
+          value: '*'
+        name: AllPods
+        original_name: ""
+    waf:
+      settings: []
+      status: true
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: applicationinsights
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: dc.services.visualstudio.com
+        - key: address
+          op: =
+          value: rt.services.visualstudio.com
+        - key: address
+          op: =
+          value: dc.applicationinsights.microsoft.com
+        - key: address
+          op: =
+          value: euw.rt.prod.applicationinsights.trafficmanager.net
+        name: ApplicationInsights
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: azurepostgresql
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: '*.postgres.database.azure.com'
+        name: AzurePostgreSQL
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: govukbankholidays
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: www.gov.uk
+        name: GovUkBankHolidays
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: govuknotify
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: api.notifications.service.gov.uk
+        name: GovUkNotify
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: govukpay
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: publicapi.payments.service.gov.uk
+        name: GovUkPay
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: idam
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: idam-api.platform.hmcts.net
+        name: Idam
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: servicebus
+    namespace: ""
+  spec:
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: address
+          op: =
+          value: '*.servicebus.windows.net'
+        name: ServiceBus
+        original_name: ""
+- apiVersion: neuvector.com/v1
+  kind: NvClusterSecurityRule
+  metadata:
+    name: containers
+    namespace: ""
+  spec:
+    dlp:
+      settings: []
+      status: true
+    egress: []
+    file: []
+    ingress: []
+    process: []
+    target:
+      policymode: N/A
+      selector:
+        comment: ""
+        criteria:
+        - key: container
+          op: =
+          value: '*'
+        name: containers
+        original_name: ""
+    waf:
+      settings: []
+      status: true
+kind: List
+metadata: null
