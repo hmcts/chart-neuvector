@@ -94,6 +94,9 @@ neuvector:
                     operator: In
                     values:
                       - system
+    updater:
+      image:
+        repository: imported/neuvector/updater
   controller:
     image:
       repository: imported/neuvector/controller
@@ -133,9 +136,6 @@ neuvector:
   enforcer:
     image:
       repository: imported/neuvector/enforcer
-  updater:
-    image:
-      repository: imported/neuvector/updater
 
 global:
   enableKeyVaults: true
