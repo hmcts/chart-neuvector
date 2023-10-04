@@ -16,7 +16,7 @@ data:
     # NV API URL. Note just using hostname doesn't always resolve...
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
-    # KV Flexvol secrets
+    # Key Vault secrets
     NV_ADMIN_PASSWORD=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-admin-password)
     NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-new-admin-password)
     NV_LICENSE=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/{{ .Values.keyvault.licensesecretname }})
@@ -25,7 +25,7 @@ data:
     # alias curl for convenience
     _CURL="curl -sk --show-error --fail"
 
-    # sleep as neuvector backup loads aynschronously, and has caused corrupted config
+    # sleep as neuvector backup loads asynchronously, and has caused corrupted config
     echo "Delay configuration for neuvector to load backup first..."
     sleep {{ .Values.config.sleep }}
 
@@ -73,10 +73,6 @@ data:
     # Set the Slack webhook URL
     echo "Setting Slack webhook URL..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
-
-    # Set Auto-scan
-    echo "Setting Auto-scan..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/scan/config -X PATCH -d '{"config":{"auto_scan":{{ .Values.config.autoScan }}}}'
     
     # Set response rules
     if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
@@ -87,49 +83,5 @@ data:
       {{- range $ar := $.Values.rules.response.policies }}
       echo "Setting response rule: '{{ $ar | toJson }}'"
       $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/response/rule?scope=local"
-      {{- end }}
-    fi
-
-    if [[ {{ len .Values.groups }} -gt 0 ]]
-    then
-      echo "Adding groups"
-
-      {{- range $ar := $.Values.groups }}
-      echo "Setting group: '{{ $ar | toJson }}'"
-
-      GROUP_NAME=$(echo '{{ $ar }}' | jq -r .config.name)
-
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" "$API_URL/group/${GROUP_NAME}?scope=local")
-      if [ $STATUS_CODE -eq 404 ]
-      then
-        # create
-       echo "Creating group for ${GROUP_NAME}"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X POST -d '{{ $ar }}' "$API_URL/group?scope=local"
-      else
-        # update
-        echo "Updating group for ${GROUP_NAME}"
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/group/${GROUP_NAME}?scope=local"
-      fi
-      {{- end }}
-    fi
-
-    if [[ {{ len .Values.rules.network }} -gt 0 ]]
-    then
-      {{- range $i, $ar := $.Values.rules.network }}
-
-      STATUS_CODE=$(curl -sk -H "X-Auth-Token: $TOKEN" -o /dev/null -w "%{http_code}" "$API_URL/policy/rule/{{ add $i 1 }}?scope=local")
-
-      if [ $STATUS_CODE -eq 404 ]
-      then
-        # create
-       echo "Creating network rule for id {{ add $i 1 }}"
-       $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.create }}' "$API_URL/policy/rule?scope=local"
-      else
-        # update
-        echo "Updating network rule for id {{ add $i 1 }}"
-        $_CURL -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar.update }}' "$API_URL/policy/rule/{{ add $i 1 }}?scope=local"
-      fi
-
-
       {{- end }}
     fi
