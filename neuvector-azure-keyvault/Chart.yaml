@@ -10,6 +10,3 @@ dependencies:
     alias: neuvector
     version: 2.6.2
     repository: https://neuvector.github.io/neuvector-helm/
-  - name: crd
-    version: 2.6.2
-    repository: https://neuvector.github.io/neuvector-helm/
