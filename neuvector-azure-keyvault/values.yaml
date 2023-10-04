@@ -66,6 +66,7 @@ neuvector:
       ssl: true
   cve:
     scanner:
+      enabled: true
       image:
         repository: imported/neuvector/scanner
       tolerations:
