@@ -1,3 +1,4 @@
+{{ if .Values.rules.admission.enable }}
 apiVersion: neuvector.com/v1
 kind: NvAdmissionControlSecurityRule
 metadata:
@@ -5,7 +6,7 @@ metadata:
 spec:
   config:
     client_mode: service
-    enable: {{ .Values.rules.admission.enable }}
+    enable: true
     mode: {{ .Values.rules.admission.mode }}
   rules:
   - action: allow
@@ -26,3 +27,4 @@ spec:
     - name: imageRegistry
       op: containsAny
       value: https://localhost/,https://*.*/
+{{ end }}
