@@ -9,7 +9,7 @@ pr:
     - master
 resources:
   repositories:
-  - repository: cnp-library
+  - repository: cnp-azuredevops-libraries
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
@@ -19,7 +19,7 @@ jobs:
   pool:
     name: hmcts-sandbox-agent-pool
   steps:
-  - template: steps/charts/validate.yaml@cnp-library
+  - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters :
       chartName: neuvector-azure-keyvault
       chartReleaseName: chart-neuvector-azure-keyvault-ci
@@ -42,7 +42,7 @@ jobs:
   pool:
     name: hmcts-sandbox-agent-pool
   steps:
-  - template: steps/charts/release.yaml@cnp-library
+  - template: steps/charts/release.yaml@cnp-azuredevops-libraries
     parameters:
       chartName: neuvector-azure-keyvault
       chartReleaseName: chart-neuvector-azure-keyvault
