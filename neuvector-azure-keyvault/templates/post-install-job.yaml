@@ -27,10 +27,11 @@ spec:
         - name: post-install-job
           image: hmctspublic.azurecr.io/docker-curl
           command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+          volumeMounts:
           {{- ( include "hmcts.secretMounts.v2" . ) | indent 10   }}
             - name: config-volume
               mountPath: /etc/config
-
+      volumes:
       {{- ( include "hmcts.secretCSIVolumes.v2" . ) | indent 6 }}
         - name: config-volume
           configMap:
