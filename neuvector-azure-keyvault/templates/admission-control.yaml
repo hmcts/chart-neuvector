@@ -14,7 +14,7 @@ spec:
     criteria:
     - name: namespace
       op: containsAny
-      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured
+      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured,artifactory
   - action: allow
     comment: Allow HMCTS registries
     criteria:
