@@ -20,7 +20,7 @@ spec:
     criteria:
     - name: imageRegistry
       op: containsAny
-      value: https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
+      value: https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
   - action: deny
     comment: Default deny
     criteria:
