@@ -17,7 +17,7 @@ After installing Neuvector using the official Neuvector chart, this chart does t
 For the secrets (e.g. admin password, license key) to be read from Azure keyvault, an Azure managed identity needs to be available.
 For more information refer to the documentation related to Pod Identity and Azure provider for CSI driver:
 - [Azure Key Vault Provider for Secrets Store CSI Driver](https://github.com/Azure/secrets-store-csi-driver-provider-azure)
-- [AAD Pod Identity](https://github.com/Azure/aad-pod-identity)
+- [AAD Workload Identity](https://github.com/Azure/azure-workload-identity)
 
 The automated configuration script uses the Neuvector REST API therefore the controller service should be exposed at least internally 
 (i.e. without ingress).
