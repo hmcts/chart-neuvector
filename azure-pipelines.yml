@@ -13,6 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
+    branch: 'DTSPO-22727-fix-neuvector-pipeline'
 
 jobs:
 - job: Validate
