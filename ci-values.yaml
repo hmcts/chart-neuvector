@@ -6,6 +6,13 @@
 rules:
   admission:
     mode: "monitor" # one of: monitor, protect
+    customRules:
+      - action: allow
+        comment: Allow monitoring app to modify deployments anywhere
+        criteria:
+          - name: user
+            op: containsAny
+            value: system:serviceaccount:monitoring:my-app-service-account
   response:
     policies:
       - '{"insert":{"after":0,"rules":[{"group":null,"conditions":[{"type":"name","value":"Admission.Control.Denied"}],"actions":["webhook"],"event":"admission-control","disable":false}]}}'
@@ -21,16 +28,16 @@ config:
 keyVaults:
   cftneuvector:
     secrets:
-      - neuvector-admin-password  
+      - neuvector-admin-password
       - neuvector-license-dev
       - neuvector-slack-webhook
       - neuvector-new-admin-password
 global:
-  enableKeyVaults: true 
+  enableKeyVaults: true
   tenantId: 531ff96d-0ae9-462a-8d2d-bec7c0b42082
   environment: sbox
 
-keyvault: 
+keyvault:
   name: cftneuvector
   licensesecretname: neuvector-license-dev
 

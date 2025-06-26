@@ -8,7 +8,7 @@ rules:
   admission:
     enable: true
     mode: "protect"  # one of: monitor, protect
-    rules: []
+    customRules: []
     defaultAction: "allow"
     admClientMode: "service"
     service: "neuvector"
