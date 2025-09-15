@@ -9,7 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   config.sh: |
-       #!/bin/sh
+    #!/bin/sh
 
     set -e
 
