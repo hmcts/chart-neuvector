@@ -27,7 +27,7 @@ data:
 
     # sleep as neuvector backup loads asynchronously, and has caused corrupted config
     echo "Delay configuration for neuvector to load backup first..."
-    sleep 180
+    sleep {{ .Values.config.sleep }}
 
     # Authenticate and check if password has been changed
     echo "Getting default authentication token..."
@@ -100,7 +100,7 @@ data:
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
 
     # Set response rules
-    if [[ 7 -gt 0 ]]
+    if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
     then
       echo "Deleting existing response rules..."
       $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE "$API_URL/response/rule?scope=local"
