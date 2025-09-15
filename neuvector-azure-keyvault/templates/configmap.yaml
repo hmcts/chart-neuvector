@@ -17,10 +17,10 @@ data:
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
     # Key Vault secrets
-    NV_ADMIN_PASSWORD=$(cat /mnt/secrets/sdsneuvector/neuvector-admin-password)
-    NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/sdsneuvector/neuvector-new-admin-password)
-    NV_LICENSE=$(cat /mnt/secrets/sdsneuvector/neuvector-license-dev)
-    NV_SLACK_WEBHOOK=$(cat /mnt/secrets/sdsneuvector/neuvector-slack-webhook)
+    NV_ADMIN_PASSWORD=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-admin-password)
+    NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-new-admin-password)
+    NV_LICENSE=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/{{ .Values.keyvault.licensesecretname }})
+    NV_SLACK_WEBHOOK=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-slack-webhook)
 
     # alias curl for convenience
     _CURL="curl -sk --show-error --fail"
