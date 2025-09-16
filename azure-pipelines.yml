@@ -18,7 +18,7 @@ resources:
 jobs:
 - job: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    name: 'ubuntu-latest'
   steps:
   - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters :
@@ -41,7 +41,7 @@ jobs:
       )
   dependsOn: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    name: 'ubuntu-latest'
   steps:
   - template: steps/charts/release.yaml@cnp-azuredevops-libraries
     parameters:
