@@ -8,5 +8,5 @@ dependencies:
     repository: oci://hmctspublic.azurecr.io/helm
   - name: core
     alias: neuvector
-    version: 2.8.7
+    version: 2.8.9
     repository: https://neuvector.github.io/neuvector-helm/

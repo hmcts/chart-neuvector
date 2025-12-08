@@ -13,6 +13,8 @@ metadata:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation # preserve job pod but delete before next install/upgrade
 spec:
+  backoffLimit: 3  # Allow more retries for debugging
+  activeDeadlineSeconds: 300  # 5 minute timeout
   template:
     metadata:
       name: {{ template "chart-neuvector.fullname" . }}
@@ -26,7 +28,22 @@ spec:
       containers:
         - name: post-install-job
           image: hmctspublic.azurecr.io/docker-curl
-          command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "$(date): Starting post-install configuration..."
+              echo "$(date): Environment variables:"
+              env | sort
+              echo "$(date): Mounted volumes:"
+              ls -la /etc/config/
+              echo "$(date): Available secrets:"
+              ls -la /mnt/secrets/ 2>/dev/null || echo "No secrets directory found"
+              echo "$(date): Executing config script..."
+                /bin/sh -x /etc/config/config.sh || { echo "$(date): ERROR: config.sh failed with exit code $?"; exit 1; }
+              echo "$(date): Post-install configuration completed"
+          env:
+            - name: DEBUG
+              value: "true"
           volumeMounts:
           {{- ( include "hmcts.secretMounts.v3" . ) | indent 10   }}
             - name: config-volume
