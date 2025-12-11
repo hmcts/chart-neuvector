@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'DTSPO-22727-fix-neuvector-pipeline'
+    ref: 'DTSPO-28859'
 
 jobs:
 - job: Validate
