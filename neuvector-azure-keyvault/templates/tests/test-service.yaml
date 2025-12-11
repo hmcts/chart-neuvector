@@ -14,7 +14,7 @@ spec:
   serviceAccountName: {{ .Release.Namespace }}
   containers:
     - name: {{ .Release.Name }}-test-service
-      image: hmctspublic.azurecr.io/docker-curl
+      image: hmctsprod.azurecr.io/docker-curl
       command: ["/bin/sh", "-c", "/etc/config/config.sh"]
       volumeMounts:
       {{- ( include "hmcts.secretMounts.v3" . ) | indent 6   }}
