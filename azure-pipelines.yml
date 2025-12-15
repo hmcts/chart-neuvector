@@ -18,7 +18,7 @@ resources:
 jobs:
 - job: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    vmImage: ubuntu-latest
   steps:
   - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters :
