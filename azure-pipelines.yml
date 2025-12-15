@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'DTSPO-28858: Publish ADO artifacts to hmctsprod zone redundant ACR'
+    ref: 'zr-acr-publish'
 
 jobs:
 - job: Validate
