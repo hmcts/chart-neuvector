@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'zr-acr-publish'
+    ref: 'master'
 
 jobs:
 - job: Validate
