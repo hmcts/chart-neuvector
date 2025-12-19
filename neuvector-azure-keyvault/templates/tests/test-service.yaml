@@ -1,39 +1,37 @@
 {{- if .Values.keyVaults -}}
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
-  name: test-service
+  # we don't include neuvector in the pod name because then neuvector blocks anything 'unexpected'
+  # this shouldn't clash as neuvector only supports one instance in it's namespace...
+  name: "test-service"
   annotations:
-    helm.sh/hook: test-success
+    "helm.sh/hook": test-success
   labels:
     aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
-  backoffLimit: 0
-  template:
-    metadata:
-      labels:
-        aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
-    spec:
-      serviceAccountName: {{ .Release.Namespace }}
-      restartPolicy: Never
-      containers:
-        - name: {{ .Release.Name }}-test-service
-          image: hmctsprod.azurecr.io/docker-curl
-          command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
-          volumeMounts:
-{{- ( include "hmcts.secretMounts.v3" . ) | indent 12 }}
-            - name: config-volume
-              mountPath: /entrypoint
-          env:
-            - name: SERVICE_NAME
-              value: {{ .Release.Name }}
-      volumes:
-{{- ( include "hmcts.secretCSIVolumes.v3" . ) | indent 8 }}
+  serviceAccountName: {{ .Release.Namespace }}
+  containers:
+    - name: {{ .Release.Name }}-test-service
+      image: hmctsprod.azurecr.io/docker-curl
+      command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+      volumeMounts:
+      {{- ( include "hmcts.secretMounts.v3" . ) | indent 6   }}
         - name: config-volume
-          configMap:
-            name: {{ .Release.Name }}-test-configmap
-            defaultMode: 0755
+          mountPath: /entrypoint
+      env:
+        - name: SERVICE_NAME
+          value: {{ .Release.Name }}
+      command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
+  restartPolicy: Never
+  volumes:
+  {{- ( include "hmcts.secretCSIVolumes.v3" . ) | indent 2 }}
+    - name: config-volume
+      configMap:
+        name: {{ .Release.Name }}-test-configmap
+        defaultMode: 0755
+
 
 ---
 apiVersion: v1
