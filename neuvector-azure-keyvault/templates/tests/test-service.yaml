@@ -21,21 +21,23 @@ spec:
       restartPolicy: Never
       containers:
         - name: {{ .Release.Name }}-test-service
-          image: hmctsprod.azurecr.io/docker-curl
-          command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
-          volumeMounts:
-          {{- ( include "hmcts.secretMounts.v3" . ) | indent 6   }}
-            - name: config-volume
-              mountPath: /entrypoint
+        image: hmctsprod.azurecr.io/docker-curl
+        command: ["/bin/sh", "-c", "/etc/config/config.sh"]
+        volumeMounts:
+        {{- ( include "hmcts.secretMounts.v3" . ) | indent 6   }}
+          - name: config-volume
+            mountPath: /entrypoint
         env:
           - name: SERVICE_NAME
             value: {{ .Release.Name }}
-      volumes:
-        {{- include "hmcts.secretCSIVolumes.v3" . | nindent 8 }}
-        - name: config-volume
-          configMap:
-            name: {{ .Release.Name }}-test-configmap
-            defaultMode: 0755
+        command: ["sh", "-c", "/entrypoint/entrypoint.sh"]
+    restartPolicy: Never
+    volumes:
+    {{- ( include "hmcts.secretCSIVolumes.v3" . ) | indent 2 }}
+      - name: config-volume
+        configMap:
+          name: {{ .Release.Name }}-test-configmap
+          defaultMode: 0755
 
 
 ---
