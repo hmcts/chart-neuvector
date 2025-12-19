@@ -34,8 +34,6 @@ spec:
           configMap:
             name: {{ .Release.Name }}-test-configmap
             defaultMode: 0755
-{{- end -}}
-
 
 ---
 apiVersion: v1
