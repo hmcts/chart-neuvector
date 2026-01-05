@@ -3,11 +3,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  # we don't include neuvector in the pod name because then neuvector blocks anything 'unexpected'
-  # this shouldn't clash as neuvector only supports one instance in it's namespace...
   name: "test-service"
   annotations:
     "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-failed
   labels:
     aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
