@@ -7,8 +7,6 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
     "helm.sh/hook-delete-policy": before-hook-creation,hook-failed
-  labels:
-    aadpodidbinding: {{ .Values.keyvault.aadpodidbinding }}
 spec:
   serviceAccountName: {{ .Release.Namespace }}
   containers:
@@ -42,8 +40,6 @@ data:
     #!/bin/sh
 
     set -e
-
-    apk add --no-cache jq
 
     # NV API URL.
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
