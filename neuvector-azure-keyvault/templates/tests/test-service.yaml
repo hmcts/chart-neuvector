@@ -43,6 +43,8 @@ data:
 
     set -e
 
+    apk add --no-cache jq
+
     # NV API URL.
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
