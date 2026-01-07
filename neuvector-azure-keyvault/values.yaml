@@ -23,7 +23,7 @@ config:
   forceLicenseUpdate: false
 
 neuvector:
-  registry: hmctspublic.azurecr.io
+  registry: hmctsprod.azurecr.io
   crdwebhook:
     enabled: false
 

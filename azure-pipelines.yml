@@ -13,12 +13,12 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'DTSPO-22727-fix-neuvector-pipeline'
+    ref: 'master'
 
 jobs:
 - job: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    vmImage: ubuntu-latest
   steps:
   - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters :
