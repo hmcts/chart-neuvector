@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'master'
+    ref: 'fix-nakedpod-blocked-tests'
 
 jobs:
 - job: Validate
