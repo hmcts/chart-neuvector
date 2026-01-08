@@ -51,4 +51,4 @@ jobs:
       serviceConnection: "DCD-CFTAPPS-SBOX"
       aksResourceGroup: "cft-sbox-00-rg"
       aksCluster: "cft-sbox-00-aks"
-      acrName: "hmctssandbox"
+      acrName: "hmctssbox"
