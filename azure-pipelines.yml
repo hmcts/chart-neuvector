@@ -41,7 +41,7 @@ jobs:
       )
   dependsOn: Validate
   pool:
-    name: ubuntu-latest
+    name: hmcts-sandbox-agent-pool
   steps:
   - template: steps/charts/release.yaml@cnp-azuredevops-libraries
     parameters:
