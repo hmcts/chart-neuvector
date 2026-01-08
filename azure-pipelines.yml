@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'dtspo-28859-release'
+    ref: 'master'
 
 jobs:
 - job: Validate
@@ -41,7 +41,7 @@ jobs:
       )
   dependsOn: Validate
   pool:
-    name: hmcts-sandbox-agent-pool
+    name: ubuntu-latest
   steps:
   - template: steps/charts/release.yaml@cnp-azuredevops-libraries
     parameters:
