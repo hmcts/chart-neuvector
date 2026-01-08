@@ -13,7 +13,7 @@ resources:
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'master'
+    ref: 'dtspo-28859-release'
 
 jobs:
 - job: Validate
