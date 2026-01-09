@@ -1,18 +1,8 @@
 {
-  "enabledManagers": [
-    "helm-requirements"
-  ],
+  "enabledManagers": [],
   "labels": [
     "dependencies"
   ],
-  "helm-requirements": {
-    "fileMatch": [
-      "\\Chart.yaml$"
-    ],
-    "aliases": {
-      "hmctsprod": "https://hmctsprod.azurecr.io/helm/v1/repo/"
-    }
-  },
   "extends": [
     "local>hmcts/.github:renovate-config"
   ]
