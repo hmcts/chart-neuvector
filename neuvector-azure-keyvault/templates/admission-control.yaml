@@ -27,4 +27,16 @@ spec:
     - name: imageRegistry
       op: containsAny
       value: https://localhost/,https://*.*/
+  {{- if and .Values.rules.admission.customRules (gt (len .Values.rules.admission.customRules) 0) }}
+  {{- range .Values.rules.admission.customRules }}
+  - action: {{ .action }}
+    comment: {{ .comment }}
+    criteria:
+    {{- range .criteria }}
+    - name: {{ .name }}
+      op: {{ .op }}
+      value: {{ .value }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
 {{ end }}
