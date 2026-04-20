@@ -73,15 +73,3 @@ data:
     # Set the Slack webhook URL
     echo "Setting Slack webhook URL..."
     $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
-    
-    # Set response rules
-    if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
-    then
-      echo "Deleting existing response rules..."
-      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE "$API_URL/response/rule?scope=local"
-      echo "Setting response rules..."
-      {{- range $ar := $.Values.rules.response.policies }}
-      echo "Setting response rule: '{{ $ar | toJson }}'"
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/response/rule?scope=local"
-      {{- end }}
-    fi
