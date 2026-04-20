@@ -3,7 +3,7 @@
 apiVersion: neuvector.com/v1
 kind: NvResponseRuleSecurityRule
 metadata:
-  name: {{ $policy.name }}
+  name: {{ required "rules.response.policies[].name is required" $policy.name | lower | replace "_" "-" | trunc 63 | trimSuffix "-" }}
   labels:
     chart: {{ template "chart-neuvector.chart" $ }}
     release: {{ $.Release.Name }}
