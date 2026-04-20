@@ -24,10 +24,14 @@ spec:
     {{- else }}
     conditions: []
     {{- end }}
+    {{- if $policy.actions }}
     actions:
       {{- range $policy.actions }}
       - {{ . }}
       {{- end }}
+    {{- else }}
+    actions: []
+    {{- end }}
     {{- if $policy.webhooks }}
     webhooks:
       {{- range $policy.webhooks }}
