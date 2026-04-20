@@ -17,6 +17,11 @@ data:
     # so it can finish the configuration that upstream Helm does not manage.
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
+    # When debug mode is enabled via a Flux values patch, verbose curl output
+    # and response bodies are printed to assist troubleshooting without
+    # requiring a code change to the chart.
+    DEBUG="{{ .Values.config.debug | default false }}"
+
     # Pull the desired runtime configuration from the mounted Key Vault files.
     # These values are used to bootstrap admin access and then reconcile the
     # cluster into the expected post-install state.
@@ -56,7 +61,11 @@ data:
 
       RESPONSE_FILE=$(mktemp)
       register_temp_file "$RESPONSE_FILE"
-      set -- -skv --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: application/json"
+      set -- -sk --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: application/json"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
       if [ -n "$AUTH_TOKEN" ]
       then
         set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
@@ -79,7 +88,10 @@ data:
       rm -f "$RESPONSE_FILE"
 
       echo "HTTP status: $HTTP_CODE"
-      echo "Response body: $JSON_RESPONSE"
+      if [ "$DEBUG" = "true" ]
+      then
+        echo "Response body: $JSON_RESPONSE"
+      fi
 
       JSON_STATUS="$HTTP_CODE"
       return "$CURL_EXIT_CODE"
@@ -94,7 +106,11 @@ data:
       AUTH_TOKEN="$4"
       EXTRA_HEADER="$5"
 
-      set -- -skv --show-error -o "$OUTPUT_FILE" -w "%{http_code}" -X "$METHOD"
+      set -- -sk --show-error -o "$OUTPUT_FILE" -w "%{http_code}" -X "$METHOD"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
       if [ -n "$AUTH_TOKEN" ]
       then
         set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
@@ -110,7 +126,6 @@ data:
       set -e
 
       echo "HTTP status: $HTTP_CODE"
-      echo "Response body saved to: $OUTPUT_FILE"
       echo "Response body size: $(wc -c < "$OUTPUT_FILE") bytes"
 
       JSON_STATUS="$HTTP_CODE"
@@ -128,7 +143,11 @@ data:
 
       RESPONSE_FILE=$(mktemp)
       register_temp_file "$RESPONSE_FILE"
-      set -- -skv --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: $CONTENT_TYPE" --data-binary "@$INPUT_FILE"
+      set -- -sk --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: $CONTENT_TYPE" --data-binary "@$INPUT_FILE"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
       if [ -n "$AUTH_TOKEN" ]
       then
         set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
@@ -147,7 +166,10 @@ data:
       rm -f "$RESPONSE_FILE"
 
       echo "HTTP status: $HTTP_CODE"
-      echo "Response body: $JSON_RESPONSE"
+      if [ "$DEBUG" = "true" ]
+      then
+        echo "Response body: $JSON_RESPONSE"
+      fi
 
       JSON_STATUS="$HTTP_CODE"
       return "$CURL_EXIT_CODE"

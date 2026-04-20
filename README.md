@@ -32,6 +32,24 @@ The hook is intentionally limited to runtime settings that the upstream chart do
 
 You can set `config.forceLicenseUpdate` to `true` to force the license reconciliation step even when the imported config already contains the same license key.
 
+## Troubleshooting / Debug Mode
+
+By default the hook script suppresses verbose curl output and response bodies to avoid leaking authentication tokens and JWTs into pod logs. When troubleshooting a failed hook run you can re-enable that output without changing the chart code by setting `config.debug` to `true` via a Flux values patch:
+
+```yaml
+spec:
+  values:
+    config:
+      debug: true
+```
+
+With debug enabled the hook will:
+
+- Pass the `-v` flag to every `curl` call, printing request and response headers (including `X-Auth-Token`).
+- Print the full response body after each JSON API call and file upload.
+
+**Remove the patch and trigger a re-reconcile once troubleshooting is complete.** Leaving debug enabled on a long-running cluster means authentication tokens will appear in the hook job logs, which are accessible to anyone with `kubectl logs` access to the `neuvector` namespace.
+
 For the secrets (for example admin password and license key) to be read from Azure Key Vault, an Azure managed identity needs to be available.
 For more information refer to the documentation related to Pod Identity and Azure provider for CSI driver:
 

@@ -38,6 +38,9 @@ groups: []
 config:
   sleep: 180
   forceLicenseUpdate: false
+  # Set to true via a Flux patch to enable verbose curl output and response body
+  # logging for troubleshooting without requiring a code change.
+  debug: false
 
 neuvector:
   registry: hmctsprod.azurecr.io
