@@ -406,6 +406,11 @@ data:
     if [ "$EULA" != "true" ]
     then
       curl_json POST "$API_URL/eula" '{"eula":{"accepted":true}}' "$TOKEN"
+      if [ "$JSON_STATUS" != "200" ]
+      then
+        echo "Failed to accept the NeuVector EULA. Expected HTTP 200 but received $JSON_STATUS."
+        exit 1
+      fi
     fi
 
     # Reconcile the enterprise license. The wrapper round-trips the exported
