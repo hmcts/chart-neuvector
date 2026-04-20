@@ -482,3 +482,9 @@ data:
     echo "Setting Slack webhook URL..."
     WEBHOOK_PAYLOAD=$(jq -nc --arg webhook_url "$NV_SLACK_WEBHOOK" '{config:{webhook_status:true,webhook_url:$webhook_url}}')
     curl_json PATCH "$API_URL/system/config" "$WEBHOOK_PAYLOAD" "$TOKEN"
+    if [ "$JSON_STATUS" != "200" ]
+    then
+      echo "Failed to update the Slack webhook configuration. HTTP status: $JSON_STATUS"
+      echo "$JSON_RESPONSE"
+      exit 1
+    fi
