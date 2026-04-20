@@ -15,8 +15,9 @@ rules:
   response:
     # Response rules are rendered as NvResponseRuleSecurityRule CRDs (NeuVector 2.8.8+).
     # Each entry maps 1:1 to a CRD instance. The 'name' field is used as the
-    # Kubernetes resource name and must be a valid DNS subdomain (lowercase,
-    # alphanumeric, hyphens only).
+    # Kubernetes resource name and must be a valid DNS subdomain (lowercase
+    # alphanumeric characters, '-' or '.', and must start and end with an
+    # alphanumeric character).
     # Available events: event, security-event, cve-report, compliance, admission-control
     # Available actions: quarantine, suppress-log, webhook
     # Example:
