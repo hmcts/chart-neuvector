@@ -211,7 +211,7 @@ data:
         echo "No existing NeuVector license was found in the exported configuration."
       fi
 
-      if [ "$CURRENT_LICENSE" = "$NV_LICENSE" ] && [ {{ .Values.config.forceLicenseUpdate }} != "true" ]
+      if [ "$CURRENT_LICENSE" = "$NV_LICENSE" ] && [ {{ .Values.config.forceLicenseUpdate | default false | quote }} != "true" ]
       then
         echo "Current NeuVector license already matches the desired license. Skipping import."
         rm -f "$CONFIG_EXPORT_GZ" "$CONFIG_EXPORT_TXT" "$CONFIG_IMPORT_TXT" "$CONFIG_IMPORT_GZ"
