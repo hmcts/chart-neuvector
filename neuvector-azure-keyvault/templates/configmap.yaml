@@ -468,6 +468,11 @@ data:
       echo "Changing admin password from $CURRENT_PASSWORD_SOURCE to keyvault-new-admin..."
       PASSWORD_PAYLOAD=$(password_change_payload "$CURRENT_ADMIN_PASSWORD" "$NV_NEW_ADMIN_PASSWORD")
       curl_json PATCH "$API_URL/user/admin" "$PASSWORD_PAYLOAD" "$TOKEN"
+      if [ "$JSON_STATUS" != "200" ]
+      then
+        echo "Failed to change the NeuVector admin password."
+        exit 1
+      fi
       echo "Re-authenticating..."
       authenticate keyvault-new-admin "$NV_NEW_ADMIN_PASSWORD"
     fi
