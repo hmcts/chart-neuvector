@@ -270,6 +270,21 @@ data:
         echo "Polling NeuVector config import status attempt $ATTEMPT/$MAX_ATTEMPTS..."
         curl_json POST "$API_URL/file/config" "" "$TOKEN" "X-Transaction-ID: $IMPORT_TID"
 
+        # The NeuVector controller restarts itself after applying a config import,
+        # which invalidates the current session. Re-authenticate and keep polling
+        # rather than treating this as a terminal failure.
+        if [ "$JSON_STATUS" = "401" ]
+        then
+          echo "Session expired during import polling (controller may be restarting). Re-authenticating..."
+          if ! authenticate "$CURRENT_PASSWORD_SOURCE" "$CURRENT_ADMIN_PASSWORD"
+          then
+            echo "Unable to re-authenticate during config import polling."
+            return 1
+          fi
+          sleep 2
+          continue
+        fi
+
         IMPORT_STATUS=$(echo "$JSON_RESPONSE" | jq -r '.data.status // empty')
         IMPORT_PERCENTAGE=$(echo "$JSON_RESPONSE" | jq -r '.data.percentage // "unknown"')
         echo "Import status: $IMPORT_STATUS"
