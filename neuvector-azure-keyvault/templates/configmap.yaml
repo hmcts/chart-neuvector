@@ -13,75 +13,478 @@ data:
 
     set -e
 
-    # NV API URL. Note just using hostname doesn't always resolve...
+    # NV API URL. The wrapper talks to the controller service from the hook job
+    # so it can finish the configuration that upstream Helm does not manage.
     API_URL="https://neuvector-svc-controller.neuvector.svc.cluster.local:10443/v1"
 
-    # Key Vault secrets
+    # When debug mode is enabled via a Flux values patch, verbose curl output
+    # and response bodies are printed to assist troubleshooting without
+    # requiring a code change to the chart.
+    DEBUG="{{ .Values.config.debug | default false }}"
+
+    # Pull the desired runtime configuration from the mounted Key Vault files.
+    # These values are used to bootstrap admin access and then reconcile the
+    # cluster into the expected post-install state.
     NV_ADMIN_PASSWORD=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-admin-password)
     NV_NEW_ADMIN_PASSWORD=$(cat  /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-new-admin-password)
     NV_LICENSE=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/{{ .Values.keyvault.licensesecretname }})
     NV_SLACK_WEBHOOK=$(cat /mnt/secrets/{{ .Values.keyvault.name }}/neuvector-slack-webhook)
+    NV_BOOTSTRAP_PASSWORD=""
+    if [ -f /mnt/bootstrap-secret/bootstrapPassword ]
+    then
+      NV_BOOTSTRAP_PASSWORD=$(cat /mnt/bootstrap-secret/bootstrapPassword)
+    fi
 
-    # alias curl for convenience
-    _CURL="curl -sk --show-error --fail"
+    TEMP_FILES=""
 
-    # sleep as neuvector backup loads asynchronously, and has caused corrupted config
+    register_temp_file() {
+      TEMP_FILES="$TEMP_FILES $1"
+    }
+
+    cleanup_temp_files() {
+      if [ -n "$TEMP_FILES" ]
+      then
+        rm -f $TEMP_FILES
+      fi
+    }
+
+    trap cleanup_temp_files EXIT HUP INT TERM
+
+    # Execute a JSON REST call and keep both the HTTP status and body available
+    # to the caller for follow-up decisions.
+    curl_json() {
+      METHOD="$1"
+      URL="$2"
+      PAYLOAD="$3"
+      AUTH_TOKEN="$4"
+      EXTRA_HEADER="$5"
+
+      RESPONSE_FILE=$(mktemp)
+      register_temp_file "$RESPONSE_FILE"
+      set -- -sk --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: application/json"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
+      if [ -n "$AUTH_TOKEN" ]
+      then
+        set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
+      fi
+      if [ -n "$EXTRA_HEADER" ]
+      then
+        set -- "$@" -H "$EXTRA_HEADER"
+      fi
+      if [ -n "$PAYLOAD" ]
+      then
+        set -- "$@" -d "$PAYLOAD"
+      fi
+
+      set +e
+      HTTP_CODE=$(curl "$@" "$URL")
+      CURL_EXIT_CODE=$?
+      set -e
+
+      JSON_RESPONSE=$(cat "$RESPONSE_FILE")
+      rm -f "$RESPONSE_FILE"
+
+      echo "HTTP status: $HTTP_CODE"
+      if [ "$DEBUG" = "true" ]
+      then
+        echo "Response body: $JSON_RESPONSE"
+      fi
+
+      JSON_STATUS="$HTTP_CODE"
+      return "$CURL_EXIT_CODE"
+    }
+
+    # Download a response body straight to disk. This is used for the gzip
+    # config export that becomes the base for license reconciliation.
+    curl_download() {
+      METHOD="$1"
+      URL="$2"
+      OUTPUT_FILE="$3"
+      AUTH_TOKEN="$4"
+      EXTRA_HEADER="$5"
+
+      set -- -sk --show-error -o "$OUTPUT_FILE" -w "%{http_code}" -X "$METHOD"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
+      if [ -n "$AUTH_TOKEN" ]
+      then
+        set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
+      fi
+      if [ -n "$EXTRA_HEADER" ]
+      then
+        set -- "$@" -H "$EXTRA_HEADER"
+      fi
+
+      set +e
+      HTTP_CODE=$(curl "$@" "$URL")
+      CURL_EXIT_CODE=$?
+      set -e
+
+      echo "HTTP status: $HTTP_CODE"
+      echo "Response body size: $(wc -c < "$OUTPUT_FILE") bytes"
+
+      JSON_STATUS="$HTTP_CODE"
+      return "$CURL_EXIT_CODE"
+    }
+
+    # Upload a binary payload, primarily for the gzip config import endpoint.
+    curl_file() {
+      METHOD="$1"
+      URL="$2"
+      INPUT_FILE="$3"
+      CONTENT_TYPE="$4"
+      AUTH_TOKEN="$5"
+      EXTRA_HEADER="$6"
+
+      RESPONSE_FILE=$(mktemp)
+      register_temp_file "$RESPONSE_FILE"
+      set -- -sk --show-error -o "$RESPONSE_FILE" -w "%{http_code}" -X "$METHOD" -H "Content-Type: $CONTENT_TYPE" --data-binary "@$INPUT_FILE"
+      if [ "$DEBUG" = "true" ]
+      then
+        set -- "$@" -v
+      fi
+      if [ -n "$AUTH_TOKEN" ]
+      then
+        set -- "$@" -H "X-Auth-Token: $AUTH_TOKEN"
+      fi
+      if [ -n "$EXTRA_HEADER" ]
+      then
+        set -- "$@" -H "$EXTRA_HEADER"
+      fi
+
+      set +e
+      HTTP_CODE=$(curl "$@" "$URL")
+      CURL_EXIT_CODE=$?
+      set -e
+
+      JSON_RESPONSE=$(cat "$RESPONSE_FILE")
+      rm -f "$RESPONSE_FILE"
+
+      echo "HTTP status: $HTTP_CODE"
+      if [ "$DEBUG" = "true" ]
+      then
+        echo "Response body: $JSON_RESPONSE"
+      fi
+
+      JSON_STATUS="$HTTP_CODE"
+      return "$CURL_EXIT_CODE"
+    }
+
+    # NeuVector 2.8.12 stores the license inside the exported config set rather
+    # than exposing the legacy license update endpoints. Export the current
+    # config, replace only the license key, and re-import the result so the rest
+    # of the config section stays intact.
+    prepare_license_import() {
+      CONFIG_EXPORT_GZ=$(mktemp)
+      register_temp_file "$CONFIG_EXPORT_GZ"
+      CONFIG_EXPORT_TXT=$(mktemp)
+      register_temp_file "$CONFIG_EXPORT_TXT"
+      CONFIG_IMPORT_TXT=$(mktemp)
+      register_temp_file "$CONFIG_IMPORT_TXT"
+      CONFIG_IMPORT_GZ=$(mktemp)
+      register_temp_file "$CONFIG_IMPORT_GZ"
+
+      echo "Exporting current NeuVector configuration..."
+      curl_download GET "$API_URL/file/config?raw=true" "$CONFIG_EXPORT_GZ" "$TOKEN" ""
+      if [ "$JSON_STATUS" != "200" ]
+      then
+        echo "Failed to export current NeuVector configuration before license import."
+        return 1
+      fi
+
+      if ! gzip -dc "$CONFIG_EXPORT_GZ" > "$CONFIG_EXPORT_TXT"
+      then
+        echo "Failed to decompress the exported NeuVector configuration."
+        return 1
+      fi
+
+      CURRENT_LICENSE=$(awk 'found { print; exit } $0 == "object/config/license" { found = 1 }' "$CONFIG_EXPORT_TXT")
+      if [ -n "$CURRENT_LICENSE" ]
+      then
+        echo "Detected an existing NeuVector license in the exported configuration."
+      else
+        echo "No existing NeuVector license was found in the exported configuration."
+      fi
+
+      if [ "$CURRENT_LICENSE" = "$NV_LICENSE" ] && [ {{ .Values.config.forceLicenseUpdate | default false | quote }} != "true" ]
+      then
+        echo "Current NeuVector license already matches the desired license. Skipping import."
+        rm -f "$CONFIG_EXPORT_GZ" "$CONFIG_EXPORT_TXT" "$CONFIG_IMPORT_TXT" "$CONFIG_IMPORT_GZ"
+        return 2
+      fi
+
+      awk -v license="$NV_LICENSE" '
+        BEGIN {
+          license_key = "object/config/license"
+          replace_next = 0
+          replaced = 0
+        }
+        {
+          if (replace_next) {
+            print license
+            replace_next = 0
+            replaced = 1
+            next
+          }
+
+          print
+
+          if ($0 == license_key) {
+            replace_next = 1
+          }
+        }
+        END {
+          if (!replaced) {
+            print license_key
+            print license
+          }
+        }
+      ' "$CONFIG_EXPORT_TXT" > "$CONFIG_IMPORT_TXT"
+
+      if ! gzip -c "$CONFIG_IMPORT_TXT" > "$CONFIG_IMPORT_GZ"
+      then
+        echo "Failed to gzip the NeuVector configuration import payload."
+        return 1
+      fi
+
+      rm -f "$CONFIG_EXPORT_GZ" "$CONFIG_EXPORT_TXT" "$CONFIG_IMPORT_TXT"
+      LICENSE_IMPORT_FILE="$CONFIG_IMPORT_GZ"
+      return 0
+    }
+
+    # Config import is asynchronous. Poll the transaction until NeuVector marks
+    # it complete, or fail the hook so the release surfaces the problem.
+    wait_for_config_import() {
+      IMPORT_TID="$1"
+      ATTEMPT=0
+      MAX_ATTEMPTS=30
+
+      while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]
+      do
+        ATTEMPT=$((ATTEMPT + 1))
+        echo "Polling NeuVector config import status attempt $ATTEMPT/$MAX_ATTEMPTS..."
+        curl_json POST "$API_URL/file/config" "" "$TOKEN" "X-Transaction-ID: $IMPORT_TID"
+
+        # The NeuVector controller restarts itself after applying a config import,
+        # which invalidates the current session. Re-authenticate and keep polling
+        # rather than treating this as a terminal failure.
+        if [ "$JSON_STATUS" = "401" ]
+        then
+          echo "Session expired during import polling (controller may be restarting). Re-authenticating..."
+          if ! authenticate "$CURRENT_PASSWORD_SOURCE" "$CURRENT_ADMIN_PASSWORD"
+          then
+            echo "Unable to re-authenticate during config import polling."
+            return 1
+          fi
+          sleep 2
+          continue
+        fi
+
+        IMPORT_STATUS=$(echo "$JSON_RESPONSE" | jq -r '.data.status // empty')
+        IMPORT_PERCENTAGE=$(echo "$JSON_RESPONSE" | jq -r '.data.percentage // "unknown"')
+        echo "Import status: $IMPORT_STATUS"
+        echo "Import percentage: $IMPORT_PERCENTAGE"
+
+        if [ "$JSON_STATUS" = "200" ] && [ "$IMPORT_STATUS" = "done" ]
+        then
+          return 0
+        fi
+
+        if [ "$JSON_STATUS" = "206" ] || [ "$IMPORT_STATUS" = "preparing" ] || [ "$IMPORT_STATUS" = "importing" ] || [ "$IMPORT_STATUS" = "no_response" ]
+        then
+          sleep 2
+          continue
+        fi
+
+        echo "NeuVector config import did not complete successfully."
+        return 1
+      done
+
+      echo "Timed out waiting for the NeuVector config import to complete."
+      return 1
+    }
+
+    # Build JSON payloads from stdin so passwords are not exposed in the jq
+    # command line visible via process listings.
+    auth_payload() {
+      printf '%s\n' "$1" | jq -Rn '{password:{username:"admin",password:input}}'
+    }
+
+    reset_auth_payload() {
+      printf '%s\n%s\n' "$1" "$2" | jq -Rn '(input) as $password | (input) as $new_password | {password:{username:"admin",password:$password,new_password:$new_password}}'
+    }
+
+    password_change_payload() {
+      printf '%s\n%s\n' "$1" "$2" | jq -Rn '(input) as $password | (input) as $new_password | {config:{fullname:"admin",password:$password,new_password:$new_password}}'
+    }
+
+    # Try a password source and handle first-login password reset when the
+    # controller requires it before issuing a token.
+    authenticate() {
+      PASSWORD_LABEL="$1"
+      PASSWORD_VALUE="$2"
+
+      if [ -z "$PASSWORD_VALUE" ]
+      then
+        echo "Skipping $PASSWORD_LABEL authentication because the password is empty."
+        return 1
+      fi
+
+      echo "Authenticating with $PASSWORD_LABEL password..."
+      AUTH_PAYLOAD=$(auth_payload "$PASSWORD_VALUE")
+      curl_json POST "$API_URL/auth" "$AUTH_PAYLOAD" ""
+      if [ "$JSON_STATUS" = "200" ]
+      then
+        TOKEN=$(echo "$JSON_RESPONSE" | jq -r .token.token)
+        if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]
+        then
+          CURRENT_ADMIN_PASSWORD="$PASSWORD_VALUE"
+          CURRENT_PASSWORD_SOURCE="$PASSWORD_LABEL"
+          return 0
+        fi
+
+        NEED_TO_RESET_PASSWORD=$(echo "$JSON_RESPONSE" | jq -r '.need_to_reset_password // false')
+        if [ "$NEED_TO_RESET_PASSWORD" = "true" ]
+        then
+          echo "$PASSWORD_LABEL password requires reset before a token will be issued."
+          RESET_AUTH_PAYLOAD=$(reset_auth_payload "$PASSWORD_VALUE" "$NV_NEW_ADMIN_PASSWORD")
+          curl_json POST "$API_URL/auth" "$RESET_AUTH_PAYLOAD" ""
+          if [ "$JSON_STATUS" = "200" ]
+          then
+            TOKEN=$(echo "$JSON_RESPONSE" | jq -r .token.token)
+            if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]
+            then
+              CURRENT_ADMIN_PASSWORD="$NV_NEW_ADMIN_PASSWORD"
+              CURRENT_PASSWORD_SOURCE="keyvault-new-admin"
+              _NEW_TOKEN="1"
+              return 0
+            fi
+          fi
+        fi
+      fi
+
+      return 1
+    }
+
+    # Upstream NeuVector can still be restoring persisted state when the hook
+    # starts. Wait before making API changes so we do not race that recovery.
     echo "Delay configuration for neuvector to load backup first..."
     sleep {{ .Values.config.sleep }}
 
-    # Authenticate and check if password has been changed
-    echo "Getting default authentication token..."
-    set +e
-    RESULT=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_ADMIN_PASSWORD"'"}}' "$API_URL/auth")
-    EXIT_CODE=$?
-    set -e
-    if [ $EXIT_CODE -ne 0 ]
+    TOKEN=""
+    CURRENT_ADMIN_PASSWORD=""
+    CURRENT_PASSWORD_SOURCE=""
+    _NEW_TOKEN=""
+
+    # Prefer the bootstrap secret on fresh installs, then fall back to the Key
+    # Vault passwords for upgrades and already-initialized clusters.
+    if authenticate bootstrap "$NV_BOOTSTRAP_PASSWORD"
     then
-      echo "Getting authentication token..."
-      TOKEN=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+      echo "Authenticated with bootstrap password."
+    elif authenticate keyvault-admin "$NV_ADMIN_PASSWORD"
+    then
+      echo "Authenticated with admin password from Key Vault."
+    elif authenticate keyvault-new-admin "$NV_NEW_ADMIN_PASSWORD"
+    then
+      echo "Authenticated with new admin password from Key Vault."
       _NEW_TOKEN="1"
     else
-      TOKEN=$(echo "${RESULT}" | jq -r .token.token)
+      echo "Unable to authenticate to the NeuVector API with bootstrap, admin, or new admin passwords."
+      exit 1
     fi
 
+    # The EULA must be accepted before the remaining system configuration can be
+    # applied consistently.
     echo "Accepting EULA..."
-    EULA_RESPONSE=$(curl -vk -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/eula)
-    echo "${EULA_RESPONSE}"
-    EULA=$(echo "${EULA_RESPONSE}" | jq -r .eula.accepted)
-    if [[ "$EULA" != "true" ]]
+    curl_json GET "$API_URL/eula" "" "$TOKEN"
+    EULA=$(echo "$JSON_RESPONSE" | jq -r .eula.accepted)
+    if [ "$EULA" != "true" ]
     then
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"eula":{"accepted":true}}' $API_URL/eula
+      curl_json POST "$API_URL/eula" '{"eula":{"accepted":true}}' "$TOKEN"
+      if [ "$JSON_STATUS" != "200" ]
+      then
+        echo "Failed to accept the NeuVector EULA. Expected HTTP 200 but received $JSON_STATUS."
+        exit 1
+      fi
     fi
 
+    # Reconcile the enterprise license. The wrapper round-trips the exported
+    # config because the current upstream version manages license state as part
+    # of config import/export.
     echo "Setting license..."
-    LICENSE=$($_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/license | jq -r .license.info.email)
-    echo "Currently registered to $LICENSE"
-    if [[ "$LICENSE" == "null" || {{ .Values.config.forceLicenseUpdate }} == "true" ]]
+    if [ -z "$NV_LICENSE" ]
     then
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -d '{"license_key": "'"$NV_LICENSE"'"}' $API_URL/system/license/update
+      echo "Skipping license configuration because the license value is empty."
+    else
+      if prepare_license_import
+      then
+        echo "Importing NeuVector configuration with the updated enterprise license..."
+        curl_file POST "$API_URL/file/config" "$LICENSE_IMPORT_FILE" "application/x-gzip" "$TOKEN" ""
+        if [ "$JSON_STATUS" != "206" ] && [ "$JSON_STATUS" != "200" ]
+        then
+          echo "Failed to start the NeuVector license import."
+          exit 1
+        fi
+
+        IMPORT_TID=$(echo "$JSON_RESPONSE" | jq -r '.data.tid // empty')
+        if [ -z "$IMPORT_TID" ] || [ "$IMPORT_TID" = "null" ]
+        then
+          echo "NeuVector did not return an import transaction ID for the license import."
+          exit 1
+        fi
+
+        if ! wait_for_config_import "$IMPORT_TID"
+        then
+          exit 1
+        fi
+
+        # Successful config import invalidates the current session, so obtain a
+        # fresh token before continuing with the remaining customizations.
+        echo "Re-authenticating after NeuVector config import..."
+        if ! authenticate "$CURRENT_PASSWORD_SOURCE" "$CURRENT_ADMIN_PASSWORD"
+        then
+          echo "Unable to re-authenticate after the NeuVector license import completed."
+          exit 1
+        fi
+      else
+        PREPARE_LICENSE_IMPORT_RC=$?
+        if [ "$PREPARE_LICENSE_IMPORT_RC" -ne 2 ]
+        then
+          echo "Failed to prepare the NeuVector license import payload."
+          exit 1
+        fi
+      fi
     fi
 
-    # Change admin password
-    if [ "$_NEW_TOKEN" == "" ]
+    # Once a stable token exists, rotate the admin password to the desired Key
+    # Vault value unless we already authenticated with that final password.
+    if [ "$_NEW_TOKEN" = "" ]
     then
-      echo "Changing default admin password..."
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/user/admin -X PATCH -d '{"config":{"fullname":"admin","password":"'"$NV_ADMIN_PASSWORD"'","new_password":"'"$NV_NEW_ADMIN_PASSWORD"'"}}'
+      echo "Changing admin password from $CURRENT_PASSWORD_SOURCE to keyvault-new-admin..."
+      PASSWORD_PAYLOAD=$(password_change_payload "$CURRENT_ADMIN_PASSWORD" "$NV_NEW_ADMIN_PASSWORD")
+      curl_json PATCH "$API_URL/user/admin" "$PASSWORD_PAYLOAD" "$TOKEN"
+      if [ "$JSON_STATUS" != "200" ]
+      then
+        echo "Failed to change the NeuVector admin password."
+        exit 1
+      fi
       echo "Re-authenticating..."
-      TOKEN=$($_CURL  -H "Content-Type: application/json" -d '{"password": {"username": "admin", "password": "'"$NV_NEW_ADMIN_PASSWORD"'"}}' "$API_URL/auth" | jq -r .token.token)
+      authenticate keyvault-new-admin "$NV_NEW_ADMIN_PASSWORD"
     fi
 
-    # Set the Slack webhook URL
+    # Apply the Slack webhook after authentication and license reconciliation so
+    # alerting is aligned with the desired cluster configuration.
     echo "Setting Slack webhook URL..."
-    $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" $API_URL/system/config -X PATCH -d '{"config":{"webhook_status":true,"webhook_url":"'"$NV_SLACK_WEBHOOK"'"}}'
-    
-    # Set response rules
-    if [[ {{ len .Values.rules.response.policies }} -gt 0 ]]
+    WEBHOOK_PAYLOAD=$(jq -nc --arg webhook_url "$NV_SLACK_WEBHOOK" '{config:{webhook_status:true,webhook_url:$webhook_url}}')
+    curl_json PATCH "$API_URL/system/config" "$WEBHOOK_PAYLOAD" "$TOKEN"
+    if [ "$JSON_STATUS" != "200" ]
     then
-      echo "Deleting existing response rules..."
-      $_CURL  -H "X-Auth-Token: $TOKEN" -X DELETE "$API_URL/response/rule?scope=local"
-      echo "Setting response rules..."
-      {{- range $ar := $.Values.rules.response.policies }}
-      echo "Setting response rule: '{{ $ar | toJson }}'"
-      $_CURL  -H "Content-Type: application/json" -H "X-Auth-Token: $TOKEN" -X PATCH -d '{{ $ar }}' "$API_URL/response/rule?scope=local"
-      {{- end }}
+      echo "Failed to update the Slack webhook configuration. HTTP status: $JSON_STATUS"
+      echo "$JSON_RESPONSE"
+      exit 1
     fi
