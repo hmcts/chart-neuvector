@@ -14,13 +14,13 @@ spec:
     criteria:
     - name: namespace
       op: containsAny
-      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured
+      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured,artifactory,pact-broker
   - action: allow
     comment: Allow HMCTS registries
     criteria:
     - name: imageRegistry
       op: containsAny
-      value: https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
+      value: https://hmctsprod.azurecr.io,https://hmctssbox.azurecr.io/,https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
   - action: deny
     comment: Default deny
     criteria:

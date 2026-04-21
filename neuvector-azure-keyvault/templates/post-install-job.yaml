@@ -25,13 +25,21 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: post-install-job
-          image: hmctspublic.azurecr.io/docker-curl
+          image: hmctsprod.azurecr.io/docker-curl
           command: ["/bin/sh", "-c", "/etc/config/config.sh"]
-          {{- ( include "hmcts.secretMounts.v2" . ) | indent 10   }}
+          volumeMounts:
+          {{- ( include "hmcts.secretMounts.v3" . ) | indent 10   }}
+            - name: bootstrap-secret
+              mountPath: /mnt/bootstrap-secret
+              readOnly: true
             - name: config-volume
               mountPath: /etc/config
-
-      {{- ( include "hmcts.secretCSIVolumes.v2" . ) | indent 6 }}
+      volumes:
+      {{- ( include "hmcts.secretCSIVolumes.v3" . ) | indent 6 }}
+        - name: bootstrap-secret
+          secret:
+            secretName: neuvector-bootstrap-secret
+            optional: true
         - name: config-volume
           configMap:
             name: neuvector-restapi-config
