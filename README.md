@@ -54,7 +54,7 @@ For the secrets (for example admin password and license key) to be read from Azu
 For more information refer to the documentation related to Pod Identity and Azure provider for CSI driver:
 
 - [Azure Key Vault Provider for Secrets Store CSI Driver](https://github.com/Azure/secrets-store-csi-driver-provider-azure)
-- [AAD Pod Identity](https://github.com/Azure/aad-pod-identity)
+- [AAD Workload Identity](https://github.com/Azure/azure-workload-identity)
 
 The automated configuration script uses the NeuVector REST API therefore the controller service should be exposed at least internally
 (i.e. without ingress).
