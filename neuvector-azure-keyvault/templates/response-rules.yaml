@@ -1,0 +1,42 @@
+{{- range $policy := .Values.rules.response.policies }}
+---
+apiVersion: neuvector.com/v1
+kind: NvResponseRuleSecurityRule
+metadata:
+  name: {{ required "rules.response.policies[].name is required" $policy.name | lower | replace "_" "-" | trunc 63 | trimSuffix "-" }}
+  labels:
+    chart: {{ template "chart-neuvector.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  rule:
+    policy_name: {{ default "default" $policy.policy_name }}
+    event: {{ $policy.event }}
+    {{- if $policy.comment }}
+    comment: {{ $policy.comment | quote }}
+    {{- end }}
+    {{- if $policy.conditions }}
+    conditions:
+      {{- range $policy.conditions }}
+      - type: {{ .type }}
+        value: {{ .value | quote }}
+      {{- end }}
+    {{- else }}
+    conditions: []
+    {{- end }}
+    {{- if $policy.actions }}
+    actions:
+      {{- range $policy.actions }}
+      - {{ . }}
+      {{- end }}
+    {{- else }}
+    actions: []
+    {{- end }}
+    {{- if $policy.webhooks }}
+    webhooks:
+      {{- range $policy.webhooks }}
+      - {{ . | quote }}
+      {{- end }}
+    {{- end }}
+    disable: {{ default false $policy.disable }}
+{{- end }}

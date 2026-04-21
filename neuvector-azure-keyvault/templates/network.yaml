@@ -4,7 +4,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: allpods
-    namespace: ""
   spec:
     dlp:
       settings: []
@@ -157,7 +156,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: applicationinsights
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -186,7 +184,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: azurepostgresql
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -206,7 +203,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: govukbankholidays
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -226,7 +222,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: govuknotify
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -246,7 +241,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: govukpay
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -266,7 +260,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: idam
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -286,7 +279,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: servicebus
-    namespace: ""
   spec:
     egress: []
     file: []
@@ -306,7 +298,6 @@ items:
   kind: NvClusterSecurityRule
   metadata:
     name: containers
-    namespace: ""
   spec:
     dlp:
       settings: []

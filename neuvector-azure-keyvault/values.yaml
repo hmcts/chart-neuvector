@@ -13,6 +13,23 @@ rules:
     admClientMode: "service"
     service: "neuvector"
   response:
+    # Response rules are rendered as NvResponseRuleSecurityRule CRDs (NeuVector 2.8.8+).
+    # Each entry maps 1:1 to a CRD instance. The 'name' field is used as the
+    # Kubernetes resource name and must be a valid DNS subdomain (lowercase
+    # alphanumeric characters, '-' or '.', and must start and end with an
+    # alphanumeric character).
+    # Available events: event, security-event, cve-report, compliance, admission-control
+    # Available actions: quarantine, suppress-log, webhook
+    # Example:
+    #   policies:
+    #     - name: admission-control-denied
+    #       event: admission-control
+    #       conditions:
+    #         - type: name
+    #           value: Admission.Control.Denied
+    #       actions:
+    #         - webhook
+    #       disable: false
     policies: []
   network: []
 
@@ -21,6 +38,9 @@ groups: []
 config:
   sleep: 180
   forceLicenseUpdate: false
+  # Set to true via a Flux patch to enable verbose curl output and response body
+  # logging for troubleshooting without requiring a code change.
+  debug: false
 
 neuvector:
   registry: hmctsprod.azurecr.io
