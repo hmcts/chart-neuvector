@@ -8,30 +8,21 @@ rules:
   admission:
     enable: true
     mode: "protect"  # one of: monitor, protect
-    rules: []
-    defaultAction: "allow"
     admClientMode: "service"
-    service: "neuvector"
+    # defaultRules: set at the Flux apps/neuvector/neuvector.yaml global level for rarely-changing rules
+    defaultRules: []
+    # customRules: set at overlay/environment level for specific rules; rendered first (higher precedence)
+    customRules: []
   response:
-    # Response rules are rendered as NvResponseRuleSecurityRule CRDs (NeuVector 2.8.8+).
-    # Each entry maps 1:1 to a CRD instance. The 'name' field is used as the
-    # Kubernetes resource name and must be a valid DNS subdomain (lowercase
-    # alphanumeric characters, '-' or '.', and must start and end with an
-    # alphanumeric character).
-    # Available events: event, security-event, cve-report, compliance, admission-control
-    # Available actions: quarantine, suppress-log, webhook
-    # Example:
-    #   policies:
-    #     - name: admission-control-denied
-    #       event: admission-control
-    #       conditions:
-    #         - type: name
-    #           value: Admission.Control.Denied
-    #       actions:
-    #         - webhook
-    #       disable: false
-    policies: []
-  network: []
+    # defaultPolicies: set at the Flux apps/neuvector/neuvector.yaml global level for rarely-changing policies
+    defaultPolicies: []
+    # customPolicies: set at overlay/environment level for specific policies; rendered first (higher precedence)
+    customPolicies: []
+  network:
+    # defaultRules: set at the Flux apps/neuvector/neuvector.yaml global level for rarely-changing rules
+    defaultRules: []
+    # customRules: set at overlay/environment level for specific rules; rendered first (higher precedence)
+    customRules: []
 
 groups: []
 
@@ -81,6 +72,8 @@ neuvector:
                     - system
     svc:
       type: ClusterIP
+    ingress:
+      httpredirect: false
     env:
       ssl: true
   cve:

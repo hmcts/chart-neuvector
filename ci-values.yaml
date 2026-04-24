@@ -6,8 +6,27 @@
 rules:
   admission:
     mode: "monitor" # one of: monitor, protect
+    defaultRules:
+      - action: allow
+        comment: Allow admin namespaces
+        criteria:
+          - name: namespace
+            op: containsAny
+            value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured,artifactory,pact-broker
+      - action: allow
+        comment: Allow HMCTS registries
+        criteria:
+          - name: imageRegistry
+            op: containsAny
+            value: https://hmctsprod.azurecr.io,https://hmctssbox.azurecr.io/,https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
+      - action: deny
+        comment: Default deny
+        criteria:
+          - name: imageRegistry
+            op: containsAny
+            value: https://localhost/,https://*.*/
   response:
-    policies:
+    defaultPolicies:
       - name: admission-control-denied
         event: admission-control
         conditions:
@@ -62,6 +81,305 @@ rules:
         actions:
           - webhook
         disable: true
+  network:
+    defaultRules:
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: applicationinsights
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: ApplicationInsights-egress
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: dc.services.visualstudio.com
+                  - key: address
+                    op: =
+                    value: rt.services.visualstudio.com
+                  - key: address
+                    op: =
+                    value: dc.applicationinsights.microsoft.com
+                  - key: address
+                    op: =
+                    value: euw.rt.prod.applicationinsights.trafficmanager.net
+                name: ApplicationInsights
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: dc.services.visualstudio.com
+                - key: address
+                  op: =
+                  value: rt.services.visualstudio.com
+                - key: address
+                  op: =
+                  value: dc.applicationinsights.microsoft.com
+                - key: address
+                  op: =
+                  value: euw.rt.prod.applicationinsights.trafficmanager.net
+              name: ApplicationInsights
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: azurepostgresql
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - PostgreSQL
+                - SSL
+              name: AzurePostgreSQL-egress
+              ports: tcp/5432
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: '*.postgres.database.azure.com'
+                name: AzurePostgreSQL
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: '*.postgres.database.azure.com'
+              name: AzurePostgreSQL
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: govukbankholidays
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: GovUkBankHolidays-egress
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: www.gov.uk
+                name: GovUkBankHolidays
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: www.gov.uk
+              name: GovUkBankHolidays
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: govuknotify
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: GovUkNotify-egress
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: api.notifications.service.gov.uk
+                name: GovUkNotify
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: api.notifications.service.gov.uk
+              name: GovUkNotify
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: govukpay
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: GovUkPay-egress
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: publicapi.payments.service.gov.uk
+                name: GovUkPay
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: publicapi.payments.service.gov.uk
+              name: GovUkPay
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: idam
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: Idam-egress
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: idam-api.platform.hmcts.net
+                name: Idam
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: idam-api.platform.hmcts.net
+              name: Idam
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: servicebus
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - SSL
+              name: ServiceBus-egress
+              ports: tcp/5671
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: '*.servicebus.windows.net'
+                name: ServiceBus
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: '*.servicebus.windows.net'
+              name: ServiceBus
+              original_name: ""
+      - apiVersion: neuvector.com/v1
+        kind: NvClusterSecurityRule
+        metadata:
+          name: mta
+          namespace: ""
+        spec:
+          egress:
+            - action: allow
+              applications:
+                - any
+              name: Mta-egress
+              ports: tcp/25
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: mta.reform.hmcts.net
+                name: Mta
+                original_name: ""
+          file: []
+          ingress: []
+          process: []
+          target:
+            policymode: N/A
+            selector:
+              comment: ""
+              criteria:
+                - key: address
+                  op: =
+                  value: mta.reform.hmcts.net
+              name: Mta
+              original_name: ""
 config:
   sleep: 10 # we dont use backup in ci, we don't need long sleep
 

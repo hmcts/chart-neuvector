@@ -1,4 +1,7 @@
-{{- range $policy := .Values.rules.response.policies }}
+{{- $customPolicies := .Values.rules.response.customPolicies | default (list) -}}
+{{- $defaultPolicies := .Values.rules.response.defaultPolicies | default (list) -}}
+{{- $policies := concat $customPolicies $defaultPolicies -}}
+{{- range $policy := $policies }}
 ---
 apiVersion: neuvector.com/v1
 kind: NvResponseRuleSecurityRule

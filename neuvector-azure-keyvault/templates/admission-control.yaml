@@ -1,30 +1,20 @@
-{{ if .Values.rules.admission.enable }}
+{{- if .Values.rules.admission.enable }}
+{{- $customRules := .Values.rules.admission.customRules | default (list) -}}
+{{- $defaultRules := .Values.rules.admission.defaultRules | default (list) -}}
+{{- $rules := concat $customRules $defaultRules -}}
 apiVersion: neuvector.com/v1
 kind: NvAdmissionControlSecurityRule
 metadata:
   name: local
 spec:
   config:
-    client_mode: service
+    client_mode: {{ .Values.rules.admission.admClientMode }}
     enable: true
     mode: {{ .Values.rules.admission.mode }}
+{{- if $rules }}
   rules:
-  - action: allow
-    comment: Allow admin namespaces
-    criteria:
-    - name: namespace
-      op: containsAny
-      value: knode-system,monitoring,flux-system,dynatrace,azureserviceoperator-system,cert-manager,keda,admin,kured,artifactory,pact-broker
-  - action: allow
-    comment: Allow HMCTS registries
-    criteria:
-    - name: imageRegistry
-      op: containsAny
-      value: https://hmctsprod.azurecr.io,https://hmctssbox.azurecr.io/,https://hmctspublic.azurecr.io/,https://hmctsprivate.azurecr.io/,https://sdshmctspublic.azurecr.io/
-  - action: deny
-    comment: Default deny
-    criteria:
-    - name: imageRegistry
-      op: containsAny
-      value: https://localhost/,https://*.*/
-{{ end }}
+{{ toYaml $rules | indent 2 }}
+{{- else }}
+  rules: []
+{{- end }}
+{{- end }}

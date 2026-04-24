@@ -1,4 +1,5 @@
-{{ if .Values.neuvector.manager.ingress.httpredirect }}
+{{- $managerIngress := (.Values.neuvector.manager.ingress | default dict) -}}
+{{- if ($managerIngress.httpredirect | default false) }}
 ---
 # relies on httptohttpsredirect middleware existing in admin namespace. definied in cnp-flux-config
 apiVersion: networking.k8s.io/v1
@@ -11,7 +12,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: admin-httptohttpsredirect@kubernetescrd
 spec:
   rules:
-    - host: {{ .Values.neuvector.manager.ingress.host }}
+    - host: {{ $managerIngress.host }}
       http:
         paths:
           - backend:
@@ -21,4 +22,4 @@ spec:
                   number: 8443
             path: /
             pathType: ImplementationSpecific
-{{ end }}
+{{- end }}
