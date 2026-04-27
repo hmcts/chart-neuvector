@@ -1,7 +1,6 @@
-{{- $groups := .Values.groups | default (list) -}}
 {{- $customRules := .Values.rules.network.customRules | default (list) -}}
 {{- $defaultRules := .Values.rules.network.defaultRules | default (list) -}}
-{{- $items := concat $groups (concat $customRules $defaultRules) -}}
+{{- $items := concat $customRules $defaultRules -}}
 {{- if $items }}
 apiVersion: v1
 kind: List

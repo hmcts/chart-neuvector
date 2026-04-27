@@ -380,6 +380,13 @@ rules:
                   value: mta.reform.hmcts.net
               name: Mta
               original_name: ""
+groups:
+  - name: ci-test-group
+    criteria:
+      - key: namespace
+        op: =
+        value: neuvector
+
 config:
   sleep: 10 # we dont use backup in ci, we don't need long sleep
 
