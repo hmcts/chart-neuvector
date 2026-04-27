@@ -4,8 +4,8 @@
 {{- $items := concat $groups (concat $customRules $defaultRules) -}}
 {{- if $items }}
 apiVersion: v1
-items:
-{{ toYaml $items | indent 0 }}
 kind: List
 metadata: {}
+items:
+{{ toYaml $items | indent 0 }}
 {{- end }}
