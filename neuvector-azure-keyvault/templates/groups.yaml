@@ -1,0 +1,13 @@
+{{- range .Values.groups }}
+---
+apiVersion: neuvector.com/v1
+kind: NvGroupDefinition
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    name: {{ .name }}
+    criteria:
+      {{- toYaml .criteria | nindent 6 }}
+{{- end }}
