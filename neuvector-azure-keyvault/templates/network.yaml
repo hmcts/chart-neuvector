@@ -1,10 +1,7 @@
 {{- $customRules := .Values.rules.network.customRules | default (list) -}}
 {{- $defaultRules := .Values.rules.network.defaultRules | default (list) -}}
-{{- $items := concat $customRules $defaultRules -}}
-{{- if $items }}
-apiVersion: v1
-kind: List
-metadata: {}
-items:
-{{ toYaml $items | indent 0 }}
+{{- $rules := concat $customRules $defaultRules -}}
+{{- range $rule := $rules }}
+---
+{{ toYaml $rule }}
 {{- end }}
