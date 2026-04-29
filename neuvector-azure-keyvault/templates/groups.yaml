@@ -5,6 +5,10 @@ kind: NvGroupDefinition
 metadata:
   name: {{ .name }}
   namespace: {{ $.Release.Namespace }}
+  labels:
+    chart: {{ template "chart-neuvector.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
 spec:
   selector:
     name: {{ .name }}

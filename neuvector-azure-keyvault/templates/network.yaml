@@ -2,6 +2,43 @@
 {{- $defaultRules := .Values.rules.network.defaultRules | default (list) -}}
 {{- $rules := concat $customRules $defaultRules -}}
 {{- range $rule := $rules }}
+{{- $spec := default $rule $rule.spec -}}
 ---
-{{ toYaml $rule }}
+apiVersion: neuvector.com/v1
+kind: NvClusterSecurityRule
+metadata:
+  name: {{ required "rules.network rules[].name is required" (coalesce $rule.metadata.name $rule.name) | lower | replace "_" "-" | trunc 63 | trimSuffix "-" }}
+  labels:
+    chart: {{ template "chart-neuvector.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  {{- if $spec.egress }}
+  egress:
+    {{- toYaml $spec.egress | nindent 4 }}
+  {{- else }}
+  egress: []
+  {{- end }}
+  {{- if $spec.ingress }}
+  ingress:
+    {{- toYaml $spec.ingress | nindent 4 }}
+  {{- else }}
+  ingress: []
+  {{- end }}
+  {{- if $spec.file }}
+  file:
+    {{- toYaml $spec.file | nindent 4 }}
+  {{- else }}
+  file: []
+  {{- end }}
+  {{- if $spec.process }}
+  process:
+    {{- toYaml $spec.process | nindent 4 }}
+  {{- else }}
+  process: []
+  {{- end }}
+  target:
+    policymode: {{ default "Monitor" $spec.target.policymode }}
+    selector:
+      {{- toYaml $spec.target.selector | nindent 6 }}
 {{- end }}

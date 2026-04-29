@@ -86,15 +86,28 @@ rules:
       - apiVersion: neuvector.com/v1
         kind: NvClusterSecurityRule
         metadata:
-          name: applicationinsights
-          namespace: ""
+          name: allpods
         spec:
           egress:
             - action: allow
               applications:
+                - DNS
+              name: DNS
+              ports: udp/53
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: domain
+                    op: =
+                    value: kube-system
+                name: nv.kube-dns.kube-system
+                original_name: ""
+            - action: allow
+              applications:
                 - HTTP
                 - SSL
-              name: ApplicationInsights-egress
+              name: ApplicationInsights
               ports: tcp/443
               priority: 0
               selector:
@@ -114,41 +127,12 @@ rules:
                     value: euw.rt.prod.applicationinsights.trafficmanager.net
                 name: ApplicationInsights
                 original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: dc.services.visualstudio.com
-                - key: address
-                  op: =
-                  value: rt.services.visualstudio.com
-                - key: address
-                  op: =
-                  value: dc.applicationinsights.microsoft.com
-                - key: address
-                  op: =
-                  value: euw.rt.prod.applicationinsights.trafficmanager.net
-              name: ApplicationInsights
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: azurepostgresql
-          namespace: ""
-        spec:
-          egress:
             - action: allow
               applications:
                 - HTTP
                 - PostgreSQL
                 - SSL
-              name: AzurePostgreSQL-egress
+              name: AzurePostgreSQL
               ports: tcp/5432
               priority: 0
               selector:
@@ -159,170 +143,10 @@ rules:
                     value: '*.postgres.database.azure.com'
                 name: AzurePostgreSQL
                 original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: '*.postgres.database.azure.com'
-              name: AzurePostgreSQL
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: govukbankholidays
-          namespace: ""
-        spec:
-          egress:
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: GovUkBankHolidays-egress
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: www.gov.uk
-                name: GovUkBankHolidays
-                original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: www.gov.uk
-              name: GovUkBankHolidays
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: govuknotify
-          namespace: ""
-        spec:
-          egress:
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: GovUkNotify-egress
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: api.notifications.service.gov.uk
-                name: GovUkNotify
-                original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: api.notifications.service.gov.uk
-              name: GovUkNotify
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: govukpay
-          namespace: ""
-        spec:
-          egress:
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: GovUkPay-egress
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: publicapi.payments.service.gov.uk
-                name: GovUkPay
-                original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: publicapi.payments.service.gov.uk
-              name: GovUkPay
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: idam
-          namespace: ""
-        spec:
-          egress:
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: Idam-egress
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: idam-api.platform.hmcts.net
-                name: Idam
-                original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: idam-api.platform.hmcts.net
-              name: Idam
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: servicebus
-          namespace: ""
-        spec:
-          egress:
             - action: allow
               applications:
                 - SSL
-              name: ServiceBus-egress
+              name: ServiceBus
               ports: tcp/5671
               priority: 0
               selector:
@@ -333,30 +157,40 @@ rules:
                     value: '*.servicebus.windows.net'
                 name: ServiceBus
                 original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: N/A
-            selector:
-              comment: ""
-              criteria:
-                - key: address
-                  op: =
-                  value: '*.servicebus.windows.net'
-              name: ServiceBus
-              original_name: ""
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: mta
-          namespace: ""
-        spec:
-          egress:
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: GovUkNotify
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: api.notifications.service.gov.uk
+                name: GovUkNotify
+                original_name: ""
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: GovUkPay
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: publicapi.payments.service.gov.uk
+                name: GovUkPay
+                original_name: ""
             - action: allow
               applications:
                 - any
-              name: Mta-egress
+              name: MTA-Reform
               ports: tcp/25
               priority: 0
               selector:
@@ -365,20 +199,35 @@ rules:
                   - key: address
                     op: =
                     value: mta.reform.hmcts.net
-                name: Mta
+                name: MTA-Reform
+                original_name: ""
+            - action: allow
+              applications:
+                - HTTP
+                - SSL
+              name: CNP-IDAM
+              ports: tcp/443
+              priority: 0
+              selector:
+                comment: ""
+                criteria:
+                  - key: address
+                    op: =
+                    value: idam-api.platform.hmcts.net
+                name: CNP-IDAM
                 original_name: ""
           file: []
           ingress: []
           process: []
           target:
-            policymode: N/A
+            policymode: "Monitor"
             selector:
               comment: ""
               criteria:
-                - key: address
+                - key: namespace
                   op: =
-                  value: mta.reform.hmcts.net
-              name: Mta
+                  value: '*'
+              name: AllPods
               original_name: ""
 groups:
   - name: ci-test-group

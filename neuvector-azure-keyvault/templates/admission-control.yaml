@@ -1,20 +1,23 @@
-{{- if .Values.rules.admission.enable }}
 {{- $customRules := .Values.rules.admission.customRules | default (list) -}}
 {{- $defaultRules := .Values.rules.admission.defaultRules | default (list) -}}
 {{- $rules := concat $customRules $defaultRules -}}
+---
 apiVersion: neuvector.com/v1
 kind: NvAdmissionControlSecurityRule
 metadata:
   name: local
+  labels:
+    chart: {{ template "chart-neuvector.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   config:
     client_mode: {{ .Values.rules.admission.admClientMode }}
-    enable: true
+    enable: {{ .Values.rules.admission.enable }}
     mode: {{ .Values.rules.admission.mode }}
 {{- if $rules }}
   rules:
 {{ toYaml $rules | indent 2 }}
 {{- else }}
   rules: []
-{{- end }}
 {{- end }}
