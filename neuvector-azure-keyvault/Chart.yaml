@@ -1,7 +1,7 @@
 apiVersion: v2
 description: A Helm chart for NeuVector
 name: neuvector-azure-keyvault
-version: 1.6.10
+version: 1.6.11
 dependencies:
   - name: library
     version: 2.2.3
