@@ -83,152 +83,127 @@ rules:
         disable: true
   network:
     defaultRules:
-      - apiVersion: neuvector.com/v1
-        kind: NvClusterSecurityRule
-        metadata:
-          name: allpods
-        spec:
-          egress:
-            - action: allow
-              applications:
-                - DNS
-              name: DNS
-              ports: udp/53
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: domain
-                    op: =
-                    value: kube-system
-                name: nv.kube-dns.kube-system
-                original_name: ""
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: ApplicationInsights
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: dc.services.visualstudio.com
-                  - key: address
-                    op: =
-                    value: rt.services.visualstudio.com
-                  - key: address
-                    op: =
-                    value: dc.applicationinsights.microsoft.com
-                  - key: address
-                    op: =
-                    value: euw.rt.prod.applicationinsights.trafficmanager.net
-                name: ApplicationInsights
-                original_name: ""
-            - action: allow
-              applications:
-                - HTTP
-                - PostgreSQL
-                - SSL
-              name: AzurePostgreSQL
-              ports: tcp/5432
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: '*.postgres.database.azure.com'
-                name: AzurePostgreSQL
-                original_name: ""
-            - action: allow
-              applications:
-                - SSL
-              name: ServiceBus
-              ports: tcp/5671
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: '*.servicebus.windows.net'
-                name: ServiceBus
-                original_name: ""
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: GovUkNotify
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: api.notifications.service.gov.uk
-                name: GovUkNotify
-                original_name: ""
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: GovUkPay
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: publicapi.payments.service.gov.uk
-                name: GovUkPay
-                original_name: ""
-            - action: allow
-              applications:
-                - any
-              name: MTA-Reform
-              ports: tcp/25
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: mta.reform.hmcts.net
-                name: MTA-Reform
-                original_name: ""
-            - action: allow
-              applications:
-                - HTTP
-                - SSL
-              name: CNP-IDAM
-              ports: tcp/443
-              priority: 0
-              selector:
-                comment: ""
-                criteria:
-                  - key: address
-                    op: =
-                    value: idam-api.platform.hmcts.net
-                name: CNP-IDAM
-                original_name: ""
-          file: []
-          ingress: []
-          process: []
-          target:
-            policymode: "Monitor"
+      - name: allpods
+        egress:
+          - action: allow
+            applications:
+              - DNS
+            name: DNS
+            ports: udp/53
+            priority: 0
             selector:
-              comment: ""
               criteria:
-                - key: namespace
+                - key: domain
                   op: =
-                  value: '*'
-              name: AllPods
-              original_name: ""
+                  value: kube-system
+              name: nv.kube-dns.kube-system
+          - action: allow
+            applications:
+              - HTTP
+              - SSL
+            name: ApplicationInsights
+            ports: tcp/443
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: dc.services.visualstudio.com
+                - key: address
+                  op: =
+                  value: rt.services.visualstudio.com
+                - key: address
+                  op: =
+                  value: dc.applicationinsights.microsoft.com
+                - key: address
+                  op: =
+                  value: euw.rt.prod.applicationinsights.trafficmanager.net
+              name: ApplicationInsights
+          - action: allow
+            applications:
+              - HTTP
+              - PostgreSQL
+              - SSL
+            name: AzurePostgreSQL
+            ports: tcp/5432
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: '*.postgres.database.azure.com'
+              name: AzurePostgreSQL
+          - action: allow
+            applications:
+              - SSL
+            name: ServiceBus
+            ports: tcp/5671
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: '*.servicebus.windows.net'
+              name: ServiceBus
+          - action: allow
+            applications:
+              - HTTP
+              - SSL
+            name: GovUkNotify
+            ports: tcp/443
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: api.notifications.service.gov.uk
+              name: GovUkNotify
+          - action: allow
+            applications:
+              - HTTP
+              - SSL
+            name: GovUkPay
+            ports: tcp/443
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: publicapi.payments.service.gov.uk
+              name: GovUkPay
+          - action: allow
+            applications:
+              - any
+            name: MTA-Reform
+            ports: tcp/25
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: mta.reform.hmcts.net
+              name: MTA-Reform
+          - action: allow
+            applications:
+              - HTTP
+              - SSL
+            name: CNP-IDAM
+            ports: tcp/443
+            priority: 0
+            selector:
+              criteria:
+                - key: address
+                  op: =
+                  value: idam-api.platform.hmcts.net
+              name: CNP-IDAM
+        target:
+          policymode: N/A
+          selector:
+            criteria:
+              - key: namespace
+                op: =
+                value: '*'
+            name: AllPods
 groups:
   - name: ci-test-group
     criteria:

@@ -2,43 +2,42 @@
 {{- $defaultRules := .Values.rules.network.defaultRules | default (list) -}}
 {{- $rules := concat $customRules $defaultRules -}}
 {{- range $rule := $rules }}
-{{- $spec := default $rule $rule.spec -}}
 ---
 apiVersion: neuvector.com/v1
 kind: NvClusterSecurityRule
 metadata:
-  name: {{ required "rules.network rules[].name is required" (coalesce $rule.metadata.name $rule.name) | lower | replace "_" "-" | trunc 63 | trimSuffix "-" }}
+  name: {{ required "rules.network rules[].name is required" $rule.name | lower | replace "_" "-" | trunc 63 | trimSuffix "-" }}
   labels:
     chart: {{ template "chart-neuvector.chart" $ }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
 spec:
-  {{- if $spec.egress }}
+  {{- if $rule.egress }}
   egress:
-    {{- toYaml $spec.egress | nindent 4 }}
+    {{- toYaml $rule.egress | nindent 4 }}
   {{- else }}
   egress: []
   {{- end }}
-  {{- if $spec.ingress }}
+  {{- if $rule.ingress }}
   ingress:
-    {{- toYaml $spec.ingress | nindent 4 }}
+    {{- toYaml $rule.ingress | nindent 4 }}
   {{- else }}
   ingress: []
   {{- end }}
-  {{- if $spec.file }}
+  {{- if $rule.file }}
   file:
-    {{- toYaml $spec.file | nindent 4 }}
+    {{- toYaml $rule.file | nindent 4 }}
   {{- else }}
   file: []
   {{- end }}
-  {{- if $spec.process }}
+  {{- if $rule.process }}
   process:
-    {{- toYaml $spec.process | nindent 4 }}
+    {{- toYaml $rule.process | nindent 4 }}
   {{- else }}
   process: []
   {{- end }}
   target:
-    policymode: {{ default "Monitor" $spec.target.policymode }}
+    policymode: {{ default "Monitor" $rule.target.policymode }}
     selector:
-      {{- toYaml $spec.target.selector | nindent 6 }}
+      {{- toYaml $rule.target.selector | nindent 6 }}
 {{- end }}
