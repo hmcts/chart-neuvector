@@ -37,7 +37,7 @@ spec:
   process: []
   {{- end }}
   target:
-    policymode: {{ default "Monitor" $rule.target.policymode }}
+    policymode: {{ default "N/A" $rule.target.policymode }}
     selector:
       {{- toYaml $rule.target.selector | nindent 6 }}
 {{- end }}

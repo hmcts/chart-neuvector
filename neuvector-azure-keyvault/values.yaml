@@ -38,9 +38,6 @@ neuvector:
   crdwebhook:
     enabled: false
 
-  containerd:
-    enabled: true
-
   manager:
     image:
       repository: imported/neuvector/manager
