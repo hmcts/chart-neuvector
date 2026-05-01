@@ -45,8 +45,15 @@ NeuVector uses three policy modes, controlled by the `policymode` field on a rul
 | `Discover` | Learning mode — no alerts, no blocking. NeuVector observes traffic and builds a baseline. |
 | `Monitor` | Audit mode — violations are logged and alerted, but traffic is **not** blocked. |
 | `Protect` | Enforcement mode — unauthorized traffic is **blocked** and violations are logged. |
+| `N/A` | Do not change the current mode — NeuVector preserves whatever mode the group already has. |
 
 `Protect` is the enforcement mode. There is no separate `Enforce` value — **`Protect` equals enforce**.
+
+> **Warning — silent CRD deletion:** NeuVector's CRD controller will **silently delete** an `NvClusterSecurityRule` object if `policymode` is set to `Monitor` or `Protect` and the target group has no actively running workloads at the time the rule is applied. This happens because the controller rejects the mode change internally and removes the CRD to avoid a misleading out-of-sync state. The `kubectl apply` will report `created` successfully, but the object disappears within seconds.
+>
+> **Always use `policymode: N/A` in Helm/Flux values** (the chart template default). Once workloads are running in the target namespace and NeuVector has discovered the group, change the mode to `Monitor` or `Protect` via the NeuVector portal, then update the Flux values to match to close the GitOps loop.
+>
+> Groups whose criteria use `key: address` (CIDR/FQDN external endpoints) are only ever used as egress/ingress `selector` targets — they are never a rule `target` — so `policymode` does not apply to them.
 
 ### `includeDefaultRules` scope
 
@@ -103,7 +110,7 @@ spec:
               ingress: []
               process: []
               target:
-                policymode: Protect
+                policymode: N/A  # Use N/A until workloads are running; then set Protect via portal and update this value
                 selector:
                   comment: ""
                   criteria:
@@ -212,7 +219,7 @@ rules:
           file: []
           process: []
           target:
-            policymode: Protect
+            policymode: N/A  # Use N/A until workloads are running; then set Protect via portal and update this value
             selector:
               criteria:
                 - key: namespace
