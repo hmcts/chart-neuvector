@@ -1,9 +1,12 @@
-{{- range .Values.groups }}
+{{- $customGroups := .Values.groups.customGroups | default (list) -}}
+{{- $defaultGroups := .Values.groups.defaultGroups | default (list) -}}
+{{- $groups := concat $customGroups $defaultGroups -}}
+{{- range $group := $groups }}
 ---
 apiVersion: neuvector.com/v1
 kind: NvGroupDefinition
 metadata:
-  name: {{ .name }}
+  name: {{ $group.name }}
   namespace: {{ $.Release.Namespace }}
   labels:
     chart: {{ template "chart-neuvector.chart" $ }}
@@ -11,7 +14,7 @@ metadata:
     heritage: {{ $.Release.Service }}
 spec:
   selector:
-    name: {{ .name }}
+    name: {{ $group.name }}
     criteria:
-      {{- toYaml .criteria | nindent 6 }}
+      {{- toYaml $group.criteria | nindent 6 }}
 {{- end }}

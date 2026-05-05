@@ -24,7 +24,11 @@ rules:
     # customRules: set at overlay/environment level for specific rules; rendered first (higher precedence)
     customRules: []
 
-groups: []
+groups:
+  # defaultGroups: set at Flux apps/neuvector/neuvector.yaml global level for rarely-changing groups
+  defaultGroups: []
+  # customGroups: set at overlay/environment level for specific groups; rendered first (higher precedence)
+  customGroups: []
 
 config:
   sleep: 180
