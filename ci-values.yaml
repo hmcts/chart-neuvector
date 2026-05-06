@@ -205,11 +205,13 @@ rules:
                 value: '*'
             name: AllPods
 groups:
-  - name: ci-test-group
-    criteria:
-      - key: namespace
-        op: =
-        value: neuvector
+  defaultGroups:
+    - name: ci-test-group
+      criteria:
+        - key: namespace
+          op: =
+          value: neuvector
+  customGroups: []
 
 config:
   sleep: 10 # we dont use backup in ci, we don't need long sleep
