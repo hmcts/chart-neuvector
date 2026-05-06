@@ -7,13 +7,14 @@ pr:
   branches:
     include:
     - master
+
 resources:
   repositories:
   - repository: cnp-azuredevops-libraries
     type: github
     name: hmcts/cnp-azuredevops-libraries
     endpoint: 'hmcts'
-    ref: 'master'
+    ref: 'DTSPO-30428'
 
 jobs:
 - job: Validate
@@ -24,7 +25,8 @@ jobs:
     parameters :
       chartName: neuvector-azure-keyvault
       chartReleaseName: chart-neuvector-azure-keyvault-ci
-      chartNamespace: neuvector
+      chartNamespace: neuvector-ci
+      createNamespace: true
       helmDeleteWait: "10"
       helmInstallWait: "120"
       helmInstallTimeout: "500"
