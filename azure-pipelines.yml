@@ -25,8 +25,7 @@ jobs:
     parameters :
       chartName: neuvector-azure-keyvault
       chartReleaseName: chart-neuvector-azure-keyvault-ci
-      chartNamespace: neuvector-ci
-      createNamespace: true
+      chartNamespace: neuvector
       helmDeleteWait: "10"
       helmInstallWait: "120"
       helmInstallTimeout: "500"
