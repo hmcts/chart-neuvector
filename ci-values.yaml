@@ -227,6 +227,9 @@ keyvault:
   licensesecretname: neuvector-license-dev
 
 neuvector:
+  internal:
+    autoGenerateCert: false
+    autoRotateCert: false
   cve:
     scanner:
       image:
