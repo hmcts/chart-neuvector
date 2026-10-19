@@ -35,12 +35,6 @@ rules:
         actions:
           - webhook
         disable: false
-      - name: security-event-all
-        event: security-event
-        conditions: []
-        actions:
-          - webhook
-        disable: true
       - name: security-event-error
         event: security-event
         conditions:
