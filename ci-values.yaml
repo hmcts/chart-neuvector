@@ -228,6 +228,8 @@ keyvault:
 
 neuvector:
   internal:
+    autoGenerateCert: true
+    autoRotateCert: false
   cve:
     scanner:
       image:
