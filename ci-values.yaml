@@ -67,14 +67,6 @@ rules:
         actions:
           - webhook
         disable: false
-      - name: compliance-5-4
-        event: compliance
-        conditions:
-          - type: name
-            value: "5.4"
-        actions:
-          - webhook
-        disable: true
   network:
     defaultRules:
       - name: allpods
