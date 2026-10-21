@@ -219,9 +219,11 @@ keyvault:
   licensesecretname: neuvector-license-dev
 
 neuvector:
+  enforcer:
+    enabled: false
   internal:
     autoGenerateCert: true
-    autoRotateCert: false
+    autoRotateCert: true
   cve:
     scanner:
       image:
