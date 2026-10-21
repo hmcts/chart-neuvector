@@ -223,7 +223,7 @@ neuvector:
     enabled: false
   internal:
     autoGenerateCert: true
-    autoRotateCert: false
+    autoRotateCert: true
   cve:
     scanner:
       image:
